@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/isEmptytest.dir/isEmptyTest.cpp.o -o isEmptytest  /usr/lib/aarch64-linux-gnu/libgtest.a /usr/lib/aarch64-linux-gnu/libgtest_main.a /usr/lib/aarch64-linux-gnu/libgtest.a -lpthread

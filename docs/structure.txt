@@ -1,0 +1,218 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFEF7
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #7D7C7C
+skinparam classArrowColor #7D7C7C
+
+package "表格数据读取类库" {
+    
+    abstract class TableReader {
+        -ResourceManager resourceManager
+        {abstract} +bool open(string filepath)
+        {abstract} +size_t getWorksheetCount()
+        {abstract} +bool selectWorksheet(size_t index)
+        {abstract} +size_t getRowCount()
+        {abstract} +size_t getColumnCount()
+        {abstract} +CellData getCell(size_t row, size_t col)
+        {abstract} +~TableReader()
+    }
+
+    class XlsReader {
+        -unique_ptr<XlsWorkBookWrapper> workbook
+        -xlsWorkSheet* worksheet
+        -ReadStrategy* strategy
+        +bool open(string filepath)
+        +size_t getWorksheetCount()
+        +bool selectWorksheet(size_t index)
+        +size_t getRowCount()
+        +size_t getColumnCount()
+        +CellData getCell(size_t row, size_t col)
+    }
+
+    class XlsxReader {
+        -unique_ptr<xlnt::workbook> workbook
+        -xlnt::worksheet worksheet
+        -ReadStrategy* strategy
+        +bool open(string filepath)
+        +size_t getWorksheetCount()
+        +bool selectWorksheet(size_t index)
+        +size_t getRowCount()
+        +size_t getColumnCount()
+        +CellData getCell(size_t row, size_t col)
+    }
+
+    class CsvReader {
+        -unique_ptr<csv2::reader> csvReader
+        -ReadStrategy* strategy
+        +bool open(string filepath)
+        +size_t getWorksheetCount()
+        +bool selectWorksheet(size_t index)
+        +size_t getRowCount()
+        +size_t getColumnCount()
+        +CellData getCell(size_t row, size_t col)
+    }
+
+    class TableReaderFactory {
+        +static unique_ptr<TableReader> createReader(string filepath)
+        -static FileType detectFileType(string filepath)
+        -static unique_ptr<TableReader> createXlsReader()
+        -static unique_ptr<TableReader> createXlsxReader()
+        -static unique_ptr<TableReader> createCsvReader()
+    }
+
+    interface ReadStrategy {
+        +CellData readCell(size_t row, size_t col)
+    }
+
+    class XlsReadStrategy {
+        -xlsWorkBook* workbook
+        -xlsWorkSheet* worksheet
+        +CellData readCell(size_t row, size_t col)
+    }
+
+    class XlsxReadStrategy {
+        -xlnt::workbook* workbook
+        -xlnt::worksheet worksheet
+        +CellData readCell(size_t row, size_t col)
+    }
+
+    class CsvReadStrategy {
+        -csv2::reader* reader
+        +CellData readCell(size_t row, size_t col)
+    }
+
+    class ResourceManager {
+        -vector<unique_ptr<Resource>> resources
+        +template<T> T* registerResource(unique_ptr<T> resource)
+        +void cleanup()
+    }
+
+    class XlsWorkBookWrapper {
+        -unique_ptr<xlsWorkBook, function> workbook
+        +~XlsWorkBookWrapper()
+    }
+
+    class TypeInference {
+        +static CellData inferType(string rawValue)
+        +static bool isNumeric(string str)
+        +static bool isBoolean(string str)
+    }
+
+    interface Logger {
+        +enum Level {DEBUG, INFO, WARNING, ERROR}
+        +log(Level level, string message)
+    }
+
+    class FileLogger {
+        -ofstream logFile
+        +log(Level level, string message)
+    }
+
+    class CellVisitor {
+        +string operator()(const string& str)
+        +string operator()(int value)
+        +string operator()(double value)
+        +string operator()(bool value)
+        +string operator()(const monostate& empty)
+    }
+
+    enum FileType {
+        XLS
+        XLSX
+        CSV
+        UNKNOWN
+    }
+
+    enum ErrorCode {
+        SUCCESS
+        FILE_NOT_FOUND
+        INVALID_FORMAT
+        MEMORY_ERROR
+        INDEX_OUT_OF_BOUNDS
+    }
+
+    abstract class TableException {
+        -string message
+        -ErrorType type
+        +TableException(string msg, ErrorType type)
+    }
+
+    class FileFormatException {
+        +FileFormatException(string msg)
+    }
+
+    class FileOpenException {
+        +FileOpenException(string msg)
+    }
+
+    class CellAccessException {
+        +CellAccessException(string msg)
+    }
+
+    ' 关系定义
+    TableReader <|-- XlsReader
+    TableReader <|-- XlsxReader
+    TableReader <|-- CsvReader
+    
+    TableReaderFactory ..> TableReader
+    TableReaderFactory ..> FileType
+    
+    ReadStrategy <|.. XlsReadStrategy
+    ReadStrategy <|.. XlsxReadStrategy
+    ReadStrategy <|.. CsvReadStrategy
+    
+    XlsReader *-- ReadStrategy
+    XlsxReader *-- ReadStrategy
+    CsvReader *-- ReadStrategy
+    
+    XlsReader *-- ResourceManager
+    XlsxReader *-- ResourceManager
+    CsvReader *-- ResourceManager
+    
+    XlsReader *-- XlsWorkBookWrapper
+    
+    XlsReadStrategy ..> "libxls"
+    XlsxReadStrategy ..> "xlnt"
+    CsvReadStrategy ..> "csv2"
+    
+    TypeInference ..> CellData
+    CellVisitor ..> CellData
+    
+    Logger <|-- FileLogger
+    TableException <|-- FileFormatException
+    TableException <|-- FileOpenException
+    TableException <|-- CellAccessException
+    
+    TableReader ..> Logger
+    TableReader ..> TableException
+    TableReader ..> CellData
+    TableReader ..> CellVisitor
+    TableReader ..> TypeInference
+    TableReader ..> ErrorCode
+}
+
+note right of TableReader
+  统一的表格读取接口
+  所有具体读取器的基类
+end note
+
+note right of ReadStrategy
+  策略模式
+  不同格式的读取逻辑
+end note
+
+note right of TableReaderFactory
+  工厂模式
+  根据文件类型创建对应的读取器
+end note
+
+note bottom of ResourceManager
+  RAII资源管理模式
+  确保内存安全释放
+end note
+
+@enduml
+
+
+

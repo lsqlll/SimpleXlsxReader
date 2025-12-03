@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/data/C/DB",
+  "command": "/usr/bin/c++   -std=gnu++17 -o CMakeFiles/xls_to_csv.dir/src/excelReader.cpp.o -c /data/C/DB/src/excelReader.cpp",
+  "file": "/data/C/DB/src/excelReader.cpp",
+  "output": "CMakeFiles/xls_to_csv.dir/src/excelReader.cpp.o"
+}
+]

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/xls_to_csv.dir/src/excelReader.cpp.o -o xls_to_csv  -Wl,-rpath,/usr/local/lib /usr/local/lib/libxlsreader.so

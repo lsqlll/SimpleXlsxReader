@@ -1,0 +1,157 @@
+# Clangd 配置 - C++17 完整配置
+CompileFlags:
+  # C++ 标准配置
+  Add: 
+    - -std=c++17
+    - -stdlib=libstdc++
+  
+  # 编译特性支持
+    - -fexceptions
+    - -frtti
+    - -fPIC
+    - -pthread
+  
+  # 警告配置
+    - -Wall
+    - -Wextra
+    - -Wpedantic
+    - -Wno-unused-parameter
+    - -Wno-unused-variable
+    - -Wno-deprecated-declarations
+  
+  # 优化和调试
+    - -O0
+    - -g3
+    - -D_GLIBCXX_DEBUG
+  
+  # 系统包含路径 (根据你的系统调整)
+    - -I/usr/include/c++/9
+    - -I/usr/include/aarch64-linux-gnu/c++/9
+    - -I/usr/include/c++/9/backward
+    - -I/usr/local/include
+    - -I/usr/include/aarch64-linux-gnu
+    - -I/usr/include
+
+# 诊断配置
+Diagnostics:
+  Suppress: 
+    - "missing-prototypes"
+    - "unused-parameter"
+  ClangTidy:
+    Checks: >
+      clang-diagnostic-*,
+      bugprone-*,
+      performance-*,
+      modernize-*,
+      readability-*,
+      cppcoreguidelines-*,
+      -bugprone-narrowing-conversions,
+      -modernize-use-trailing-return-type,
+      -readability-identifier-length,
+      -cppcoreguidelines-avoid-magic-numbers,
+      -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+    CheckOptions:
+      readability-identifier-naming.ClassCase: CamelCase
+      readability-identifier-naming.StructCase: CamelCase
+      readability-identifier-naming.FunctionCase: camelBack
+      readability-identifier-naming.VariableCase: camelBack
+
+# 索引配置
+Index:
+  Background: Build
+  Threads: 0  # 自动选择线程数
+  TrackDependencies: true
+  MultiVersion: Both
+  MultiVersionMapping: 
+    - .*::^[[:digit:]]+\.[[:digit:]]+$
+
+# 补全配置
+Completion:
+  Enable: true
+  DetailedFormat: true
+  IncludeCompletion:
+    ShowAngleBrackets: true
+    InsertIncludes: true
+  Placeholders: true
+  SmartOptions: true
+
+# 悬停提示配置
+Hover:
+  Enable: true
+  ShowAKA: true
+  ShowIncludes: true
+
+# 代码动作配置
+CodeAction:
+  Enable: true
+
+# 引用查找配置
+References:
+  ShowNotImplemented: false
+
+# 头文件插入配置
+HeaderInsertion: Never
+
+# 内联提示配置
+InlayHints:
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+  Designators: true
+
+# 语义高亮配置
+SemanticHighlighting: true
+
+# 性能配置
+Performance:
+  Async: true
+  Cache:
+    Directory: /tmp/clangd-cache
+    Size: 512
+
+# 工作空间配置
+Workspace:
+  MaxWorkspaceSearchResults: 500
+  BackgroundIndexPriority: Normal
+  Preload: true
+
+# 内存配置
+Memory:
+  CompilationDatabase: Auto
+  MaxASTs: 10
+  MaxInMemoryShaderCacheSize: 100
+
+# 如果项目有编译数据库，优先使用
+If:
+  PathMatch: .*compile_commands\.json
+  CompileFlags:
+    CompilationDatabase: ./
+
+# 针对不同文件类型的配置
+Overrides:
+  - Path: ".*\.c$"
+    CompileFlags:
+      Add: [-std=c17]
+  - Path: ".*\.h$"
+    CompileFlags:
+      Add: [-x c++-header]
+  - Path: ".*\.cpp$"
+    CompileFlags:
+      Add: [-x c++]
+  - Path: ".*\.cc$"
+    CompileFlags:
+      Add: [-x c++]
+  - Path: ".*\.cxx$"
+    CompileFlags:
+      Add: [-x c++]
+
+# 项目特定包含路径 (根据你的项目结构调整)
+# 取消注释并修改以下路径以匹配你的项目
+# - Path: "src/.*"
+#   CompileFlags:
+#     Add: [-I./include, -I./third_party]
+
+# 宏定义 (根据你的项目需要添加)
+# - Path: ".*"
+#   CompileFlags:
+#     Add: [-DMY_PROJECT=1, -DDEBUG=1]
