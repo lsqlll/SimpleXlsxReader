@@ -12,12 +12,12 @@ private:
 
 public:
     explicit ExcelException (const std::string& msg)
-	: _message (msg) {};
+        : _message (msg) {};
 
     const char*
     what () const noexcept override
     {
-	return _message.c_str ();
+        return _message.c_str ();
     }
 };
 
@@ -25,48 +25,56 @@ class FileNotFoundException : public ExcelException
 {
 public:
     explicit FileNotFoundException (const std::string& msg)
-	: ExcelException ("File not found: " + msg) {};
+        : ExcelException ("File not found: " + msg) {};
 };
 
 class UnsupportedException : public ExcelException
 {
 public:
     explicit UnsupportedException (const std::string& msg)
-	: ExcelException (msg + "not supported") {};
+        : ExcelException (msg + "not supported") {};
 };
 
 class PathNotFileException : public ExcelException
 {
 public:
     explicit PathNotFileException (const std::string& msg)
-	: ExcelException (msg + "is not a file") {};
+        : ExcelException (msg + "is not a file") {};
 };
 
 class FailedOpenException : public ExcelException
 {
 public:
     explicit FailedOpenException (const std::string& msg)
-	: ExcelException ("Error reading file: " + msg) {};
+        : ExcelException ("Error reading file: " + msg) {};
 };
 
 class IndexOutException : public ExcelException
 {
 public:
     explicit IndexOutException (const std::string& msg)
-	: ExcelException ("Index" + msg + "out of Range") {};
+        : ExcelException ("Index" + msg + "out of Range") {};
 };
+
+class NullCellException : public ExcelException
+{
+public:
+    explicit NullCellException (const std::string& msg)
+        : ExcelException ("Null cell: " + msg) {};
+};
+
 class parseAddrException : public ExcelException
 {
 public:
     explicit parseAddrException (const std::string& msg)
-	: ExcelException ("Parse error: " + msg) {};
+        : ExcelException ("Parse error: " + msg) {};
 };
 
 class parseErrorException : public ExcelException
 {
 public:
     explicit parseErrorException (const std::string& file,
-				  const std::string& msg)
-	: ExcelException ("Parse error in " + file + ": " + msg) {};
+                                  const std::string& msg)
+        : ExcelException ("Parse error in " + file + ": " + msg) {};
 };
 } // namespace ExcelReader
