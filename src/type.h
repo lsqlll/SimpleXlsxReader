@@ -116,7 +116,7 @@ private:
     std::optional<CellType> type_;
     std::variant<std::monostate, std::string, double, bool> value_;
     void
-    inferTypeFromStringCell (bool trimWs)
+    inferValueFromStringCell (bool trimWs)
     {
         std::string s = cell_->str == nullptr ? "" : std::string (cell_->str);
         if (isEmpty (s, trimWs))
@@ -131,7 +131,7 @@ private:
             }
     };
     void
-    inferTypeFromFormulaCell (bool trimWs)
+    inferValueFromFormulaCell (bool trimWs)
     {
         if (cell_->l == 0)
             {
@@ -193,7 +193,7 @@ private:
             }
     };
     void
-    inferTypeFromNumberCell (bool trimWs)
+    inferValueFromNumberCell (bool trimWs)
     {
         if (isEmpty (std::to_string (cell_->col)))
             {
@@ -206,7 +206,7 @@ private:
         value_ = cell_->d;
     };
     void
-    inferTypeFromBoolErrCell (bool trimWs)
+    inferValueFromBoolErrCell (bool trimWs)
     {
         if (cell_->str && strncmp ((char*)cell_->str, "bool", 4) == 0)
             {
@@ -242,6 +242,102 @@ private:
         type_ = CellType::UNKNOWN;
         value_ = std::monostate{};
     };
+    std::string
+    asBoolString () const
+    {
+        bool boolValue = false;
+
+        if (auto* b = std::get_if<bool> (&value_))
+            {
+                boolValue = *b;
+            }
+        else if (cell_)
+            {
+                boolValue = cell_->d != 0.0;
+            }
+
+        return boolValue ? "TRUE" : "FALSE";
+    }
+
+    std::string
+    asNumberString () const
+    {
+        double value = 0.0;
+
+        if (auto* d = std::get_if<double> (&value_))
+            {
+                value = *d;
+            }
+        else if (cell_)
+            {
+                value = cell_->d;
+            }
+
+        return formatDouble (value);
+    }
+
+    std::string
+    asString (bool trimWs) const
+    {
+        std::string result;
+
+        if (auto* s = std::get_if<std::string> (&value_))
+            {
+                result = *s;
+            }
+        else if (cell_ && cell_->str)
+            {
+                result = std::string (cell_->str);
+            }
+
+        return trimWs ? trim (result) : result;
+    }
+
+    std::string
+    formatDouble (double value) const
+    {
+        std::ostringstream oss;
+
+        // 检查是否为整数
+        double intpart;
+        if (std::modf (value, &intpart) == 0.0)
+            {
+                // 整数值：使用整数格式化
+                if (value >= std::numeric_limits<int64_t>::min ()
+                    && value <= double (std::numeric_limits<int64_t>::max ()))
+                    {
+                        oss << static_cast<int64_t> (value);
+                    }
+                else
+                    {
+                        oss << std::fixed << std::setprecision (0) << value;
+                    }
+            }
+        else
+            {
+                // 浮点值：智能格式化
+                oss << std::setprecision (15) << value;
+
+                std::string str = oss.str ();
+
+                // 移除尾随的0
+                if (str.find ('.') != std::string::npos)
+                    {
+                        // 移除尾随的0
+                        str.erase (str.find_last_not_of ('0') + 1,
+                                   std::string::npos);
+                        // 如果最后是小数点，也移除
+                        if (!str.empty () && str.back () == '.')
+                            {
+                                str.pop_back ();
+                            }
+                    }
+
+                return str;
+            }
+
+        return oss.str ();
+    }
 
 public:
     explicit XlsCell (xls::xlsCell* cell)
@@ -252,7 +348,7 @@ public:
     {
         if (cell)
             {
-                inferType (true);
+                inferValue (true);
             }
     };
 
@@ -281,229 +377,88 @@ public:
             {
                 return type_.value ();
             }
-        inferType (true);
+        inferValue (true);
         return type_.value ();
     }
 
     void
-    inferType (const bool trimWs) // 添加 const 修饰符
+    inferValue (const bool trimWs) // 添加 const 修饰符
     {
-        if (type_ != CellType::UNKNOWN)
+        // 如果已经有类型，不需要重新推断（可以修改这个逻辑如果需要强制重新推断）
+        if (type_.has_value () && type_ != CellType::UNKNOWN
+            && cell_ != nullptr)
             {
                 return;
             }
 
-        CellType ct;
+        if (!cell_)
+            {
+                inferBlankCell ();
+                return;
+            }
+
+        // 使用 switch 分发到具体的处理函数
         switch (cell_->id)
             {
                 case XLS_RECORD_LABELSST:
                 case XLS_RECORD_LABEL:
                 case XLS_RECORD_RSTRING:
-                    {
-                        std::string s = cell_->str == NULL ? "" : cell_->str;
-                        if (isEmpty (s, trimWs))
-                            {
-                                ct = CellType::BLANK;
-                                value_ = std::monostate{};
-                            }
-                        else
-                            {
-                                ct = CellType::STRING;
-                                value_ = trimWs ? trim (s) : s;
-                            }
-                        break;
-                    }
+                    inferValueFromStringCell (trimWs);
+                    break;
 
                 case XLS_RECORD_FORMULA:
                 case XLS_RECORD_FORMULA_ALT:
-                    if (cell_->l == 0)
-                        {
-                            auto strVal = std::to_string (cell_->d);
-
-                            if (isEmpty (strVal))
-                                {
-                                    ct = CellType::BLANK;
-                                    value_ = std::monostate{};
-                                    break;
-                                }
-                            int format = cell_->xf;
-                            ct = (isDateTime (format)) ? CellType::DATE
-                                                       : CellType::NUMBER;
-                            value_ = cell_->d;
-                            break;
-                        }
-                    else
-                        {
-                            if (strncmp ((char*)cell_->str, "bool", 4) == 0)
-                                {
-                                    if ((cell_->d == 0
-                                         && strcasecmp ((char*)cell_->str,
-                                                        "false")
-                                                == 0)
-                                        || (cell_->d == 1
-                                            && strcasecmp ((char*)cell_->str,
-                                                           "true")
-                                                   == 0))
-                                        {
-                                            ct = CellType::BLANK;
-                                            value_ = std::monostate{};
-                                        }
-                                    else
-                                        {
-                                            ct = CellType::BOOL;
-                                            value_ = cell_->d != 0;
-                                        }
-                                    break;
-                                }
-
-                            if (strncmp ((char*)cell_->str, "error", 5) == 0
-                                && cell_->d > 0)
-                                {
-                                    ct = CellType::BLANK;
-                                    value_ = std::monostate{};
-                                    break;
-                                }
-
-                            std::string str = cell_->str;
-                            if (isEmpty (str, trimWs))
-                                {
-                                    ct = CellType::BLANK;
-                                    value_ = std::monostate{};
-                                }
-                            else
-                                {
-                                    ct = CellType::STRING;
-                                    value_ = trimWs ? trim (str) : str;
-                                }
-                        }
+                    inferValueFromFormulaCell (trimWs);
                     break;
 
                 case XLS_RECORD_MULRK:
                 case XLS_RECORD_NUMBER:
                 case XLS_RECORD_RK:
-                    {
-                        if (isEmpty (std::to_string (cell_->col)))
-                            {
-                                ct = CellType::BLANK;
-                                value_ = std::monostate{};
-                                break;
-                            }
-                        int format = cell_->xf;
-                        ct = (isDateTime (format)) ? CellType::DATE
-                                                   : CellType::NUMBER;
-                        value_ = cell_->d;
-                    }
+                    inferValueFromNumberCell (trimWs);
                     break;
 
                 case XLS_RECORD_MULBLANK:
                 case XLS_RECORD_BLANK:
-                    ct = CellType::BLANK;
-                    value_ = std::monostate{};
+                    inferBlankCell ();
                     break;
 
                 case XLS_RECORD_BOOLERR:
-                    if (strncmp ((char*)cell_->str, "bool", 4) == 0)
-                        {
-                            if ((cell_->d == 0
-                                 && tolower (std::string (cell_->str)
-                                             == "false"))
-                                || (cell_->d == 1
-                                    && tolower (std::string (cell_->str)
-                                                == "false")))
-                                {
-                                    ct = CellType::BLANK;
-                                    value_ = std::monostate{};
-                                }
-                            else
-                                {
-                                    ct = CellType::BOOL;
-                                    value_ = cell_->d != 0;
-                                }
-                        }
-                    else
-                        {
-                            ct = CellType::BLANK;
-                            value_ = std::monostate{};
-                        }
+                    inferValueFromBoolErrCell (trimWs);
                     break;
 
                 default:
-                    ct = CellType::UNKNOWN;
-                    value_ = std::monostate{};
+                    inferUnknownCell ();
+                    break;
             }
-
-        type_ = ct; // 修改 type_ 的值需要移除 const 修饰符或使用 mutable
     }
 
     std::string
     asStdString (const bool trimWs,
                  const std::vector<std::string>& stringTable) const
     {
-        switch (type_.value ())
+        // 处理未初始化的情况
+        if (!type_.has_value ())
+            {
+                return "";
+            }
+
+        CellType cellType = type_.value ();
+
+        switch (cellType)
             {
                 case CellType::UNKNOWN:
                 case CellType::BLANK:
                     return "";
 
                 case CellType::BOOL:
-                    {
-                        if (auto* b = std::get_if<bool> (&value_))
-                            {
-                                return *b ? "TRUE" : "FALSE";
-                            }
-                        return cell_->d ? "TRUE" : "FALSE";
-                    }
+                    return asBoolString ();
 
                 case CellType::DATE:
                 case CellType::NUMBER:
-                    {
-                        if (auto* d = std::get_if<double> (&value_))
-                            {
-                                std::ostringstream strs;
-                                double intpart;
-                                if (std::modf (*d, &intpart) == 0.0)
-                                    {
-                                        strs << std::fixed
-                                             << static_cast<int64_t> (*d);
-                                    }
-                                else
-                                    {
-                                        strs << std::setprecision (
-                                            std::numeric_limits<
-                                                double>::digits10
-                                            + 2)
-                                             << *d;
-                                    }
-                                std::string out_string = strs.str ();
-                                return out_string;
-                            }
-                        // fallback to original
-                        std::ostringstream strs;
-                        double intpart;
-                        if (std::modf (cell_->d, &intpart) == 0.0)
-                            {
-                                strs << std::fixed
-                                     << static_cast<int64_t> (cell_->d);
-                            }
-                        else
-                            {
-                                strs << std::setprecision (
-                                    std::numeric_limits<double>::digits10 + 2)
-                                     << cell_->d;
-                            }
-                        std::string out_string = strs.str ();
-                        return out_string;
-                    }
+                    return asNumberString ();
 
                 case CellType::STRING:
-                    {
-                        if (auto* s = std::get_if<std::string> (&value_))
-                            {
-                                return trimWs ? trim (*s) : *s;
-                            }
-                        std::string out_string = cell_->str;
-                        return trimWs ? trim (out_string) : out_string;
-                    }
+                    return asString (trimWs);
 
                 default:
                     return "";
