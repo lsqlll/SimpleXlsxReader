@@ -224,23 +224,21 @@ private:
         value_ = cell_->d;
     };
     void
-    inferValueFromBoolErrCell ()
+    inferTypeFromBoolErrCell (bool trimWs)
     {
-        if (cell_->str && strncmp ((char*)cell_->str, "bool", 4) == 0)
+        std::string tmp = trimWs ? trim (cell_->str) : cell_->str;
+        if (tmp.size () == 0)
             {
-                std::string strVal = cell_->str ? std::string (cell_->str) : "";
-                std::string lowerStrVal = tolower (strVal);
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+            }
+        std::string strVal = cell_->str ? std::string (cell_->str) : "";
+        std::string lowerStrVal = tolower (strVal);
 
-                if (lowerStrVal == "false" || lowerStrVal == "true")
-                    {
-                        type_ = CellType::BOOL;
-                        value_ = cell_->d != 0;
-                    }
-                else
-                    {
-                        type_ = CellType::BLANK;
-                        value_ = std::monostate{};
-                    }
+        if (lowerStrVal == "false" || lowerStrVal == "true")
+            {
+                type_ = CellType::BOOL;
+                value_ = cell_->d != 0;
             }
         else
             {
@@ -248,6 +246,7 @@ private:
                 value_ = std::monostate{};
             }
     };
+
     void
     inferBlankCell (bool trimWs)
     {
