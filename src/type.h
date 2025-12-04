@@ -127,8 +127,11 @@ private:
         try
             {
                 auto tmp = std::stod (s);
-                value_ = tmp;
-                type_ = CellType::NUMBER;
+                if (tmp)
+                    {
+                        value_ = tmp;
+                        type_ = CellType::NUMBER;
+                    }
             }
         catch (...)
             {
