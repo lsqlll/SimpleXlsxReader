@@ -110,10 +110,138 @@ struct CellPosition
 
 class XlsCell
 {
+private:
     xls::xlsCell* cell_;
     CellPosition location_;
     std::optional<CellType> type_;
     std::variant<std::monostate, std::string, double, bool> value_;
+    void
+    inferTypeFromStringCell (bool trimWs)
+    {
+        std::string s = cell_->str == nullptr ? "" : std::string (cell_->str);
+        if (isEmpty (s, trimWs))
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+            }
+        else
+            {
+                type_ = CellType::STRING;
+                value_ = trimWs ? trim (s) : s;
+            }
+    };
+    void
+    inferTypeFromFormulaCell (bool trimWs)
+    {
+        if (cell_->l == 0)
+            {
+                auto strVal = std::to_string (cell_->d);
+                if (isEmpty (strVal))
+                    {
+                        type_ = CellType::BLANK;
+                        value_ = std::monostate{};
+                        return;
+                    }
+                int format = cell_->xf;
+                type_ =
+                    (isDateTime (format)) ? CellType::DATE : CellType::NUMBER;
+                value_ = cell_->d;
+                return;
+            }
+
+        // 处理布尔公式
+        if (cell_->str && strncmp ((char*)cell_->str, "bool", 4) == 0)
+            {
+                bool isValidBool =
+                    (cell_->d == 0 && cell_->str
+                     && strcasecmp ((char*)cell_->str, "false") == 0)
+                    || (cell_->d == 1 && cell_->str
+                        && strcasecmp ((char*)cell_->str, "true") == 0);
+                if (isValidBool)
+                    {
+                        type_ = CellType::BLANK;
+                        value_ = std::monostate{};
+                    }
+                else
+                    {
+                        type_ = CellType::BOOL;
+                        value_ = cell_->d != 0;
+                    }
+                return;
+            }
+
+        // 处理错误公式
+        if (cell_->str && strncmp ((char*)cell_->str, "error", 5) == 0
+            && cell_->d > 0)
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+                return;
+            }
+
+        // 处理字符串公式
+        std::string str = cell_->str ? std::string (cell_->str) : "";
+        if (isEmpty (str, trimWs))
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+            }
+        else
+            {
+                type_ = CellType::STRING;
+                value_ = trimWs ? trim (str) : str;
+            }
+    };
+    void
+    inferTypeFromNumberCell (bool trimWs)
+    {
+        if (isEmpty (std::to_string (cell_->col)))
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+                return;
+            }
+        int format = cell_->xf;
+        type_ = (isDateTime (format)) ? CellType::DATE : CellType::NUMBER;
+        value_ = cell_->d;
+    };
+    void
+    inferTypeFromBoolErrCell (bool trimWs)
+    {
+        if (cell_->str && strncmp ((char*)cell_->str, "bool", 4) == 0)
+            {
+                std::string strVal = cell_->str ? std::string (cell_->str) : "";
+                std::string lowerStrVal = tolower (strVal);
+
+                if (lowerStrVal == "false" || lowerStrVal == "true")
+                    {
+                        type_ = CellType::BOOL;
+                        value_ = cell_->d != 0;
+                    }
+                else
+                    {
+                        type_ = CellType::BLANK;
+                        value_ = std::monostate{};
+                    }
+            }
+        else
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+            }
+    };
+    void
+    inferBlankCell ()
+    {
+        type_ = CellType::BLANK;
+        value_ = std::monostate{};
+    };
+    void
+    inferUnknownCell ()
+    {
+        type_ = CellType::UNKNOWN;
+        value_ = std::monostate{};
+    };
 
 public:
     explicit XlsCell (xls::xlsCell* cell)
