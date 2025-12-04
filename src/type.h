@@ -354,15 +354,6 @@ public:
             }
     };
 
-
-    explicit XlsCell (std::pair<int, int> loc)
-
-        : cell_ (nullptr)
-        , location_ (loc)
-        , type_ (std::nullopt)
-        , value_ (std::monostate{}) {};
-
-
     int
     row () const
     {
