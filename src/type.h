@@ -3,7 +3,6 @@
 
 #include "utils.h"
 
-#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstring>
@@ -39,19 +38,73 @@ struct CellPosition
     template<typename T>
     explicit CellPosition (T row, T col)
         : row (static_cast<std::size_t> (row))
-        , col (static_cast<std::size_t> (col)){};
+        , col (static_cast<std::size_t> (col))
+    {
+        // 计算Excel地址 (A1, B2, etc.)
+        int temp_col = col;
+        std::string column_str = "";
+        while (temp_col >= 0)
+            {
+                column_str = char ('A' + (temp_col % 26)) + column_str;
+                temp_col = (temp_col / 26) - 1;
+                if (temp_col < 0)
+                    break;
+            }
+        addr = column_str + std::to_string (row + 1);
+    }
 
     template<typename T>
     explicit CellPosition (std::pair<T, T> loc)
         : row (static_cast<std::size_t> (loc.first))
-        , col (static_cast<std::size_t> (loc.second)){};
+        , col (static_cast<std::size_t> (loc.second))
+    {
+        // 计算Excel地址
+        int temp_col = col;
+        std::string column_str = "";
+        while (temp_col >= 0)
+            {
+                column_str = char ('A' + (temp_col % 26)) + column_str;
+                temp_col = (temp_col / 26) - 1;
+                if (temp_col < 0)
+                    break;
+            }
+        addr = column_str + std::to_string (row + 1);
+    }
 
     explicit CellPosition (const std::string& addr)
         : addr (addr)
     {
-        auto pair = parseAddress (addr);
-        row = pair.first;
-        col = pair.second;
+        // 解析地址 A1 -> (0,0), B2 -> (1,1)
+        std::string col_part = "";
+        std::string row_part = "";
+        size_t i = 0;
+        while (i < addr.length () && std::isalpha (addr[ i ]))
+            {
+                col_part += addr[ i ];
+                i++;
+            }
+        while (i < addr.length () && std::isdigit (addr[ i ]))
+            {
+                row_part += addr[ i ];
+                i++;
+            }
+
+        int col_num = 0;
+        for (char c : col_part)
+            {
+                col_num = col_num * 26 + (c - 'A' + 1);
+            }
+
+        if (!row_part.empty ())
+            {
+                row = std::stoi (row_part) - 1;
+            }
+        else
+            {
+                row = 0;
+            }
+
+        col = col_num >= 0 ? static_cast<std::size_t> (col_num - 1) : 0;
     };
 };
 
