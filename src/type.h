@@ -399,11 +399,10 @@ public:
     CellType
     type ()
     {
-        if (type_.has_value ())
+        if (!type_.has_value () && cell_ != nullptr)
             {
-                return type_.value ();
+                inferValue (false);
             }
-        inferValue (true);
         return type_.value ();
     }
 
