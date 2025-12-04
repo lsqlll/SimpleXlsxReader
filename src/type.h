@@ -145,6 +145,10 @@ private:
                         type_ = CellType::BOOL;
                     }
             }
+
+        catch (...)
+            {
+            }
         type_ = CellType::STRING;
         value_ = trimWs ? trim (s) : s;
     };
