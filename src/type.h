@@ -342,21 +342,26 @@ private:
 public:
     explicit XlsCell (xls::xlsCell* cell)
         : cell_ (cell)
-        , location_ (CellPosition (std::make_pair (cell_->row, cell_->col)))
-        , type_ (CellType::UNKNOWN)
+        , type_ (std::nullopt)
+        , location_ (CellPosition (0, 0))
         , value_ (std::monostate{})
     {
         if (cell)
             {
-                inferValue (true);
+                this->inferValue (false);
+                this->location_ =
+                    CellPosition (std::make_pair (cell_->row, cell_->col));
             }
     };
 
+
     explicit XlsCell (std::pair<int, int> loc)
-        : cell_ (NULL)
+
+        : cell_ (nullptr)
         , location_ (loc)
-        , type_ (CellType::BLANK)
+        , type_ (std::nullopt)
         , value_ (std::monostate{}) {};
+
 
     int
     row () const
