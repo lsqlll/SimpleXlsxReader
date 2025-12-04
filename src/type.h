@@ -403,6 +403,10 @@ public:
             {
                 inferValue (false);
             }
+        if (!type_.has_value () && cell_ == nullptr)
+            {
+                throw ExcelReader::NullCellException ("");
+            }
         return type_.value ();
     }
 
