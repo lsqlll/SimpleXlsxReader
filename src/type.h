@@ -139,11 +139,11 @@ private:
                 auto strlower = tolower (s);
                 auto tmp =
                     std::equal (strlower.begin (), strlower.end (), "bool");
-                value_ = tmp;
-                type_ = CellType::BOOL;
-            }
-        catch (...)
-            {
+                if (tmp)
+                    {
+                        value_ = tmp;
+                        type_ = CellType::BOOL;
+                    }
             }
         type_ = CellType::STRING;
         value_ = trimWs ? trim (s) : s;
@@ -224,7 +224,7 @@ private:
         value_ = cell_->d;
     };
     void
-    inferTypeFromBoolErrCell (bool trimWs)
+    inferValueFromBoolErrCell (bool trimWs)
     {
         std::string tmp = trimWs ? trim (cell_->str) : cell_->str;
         if (tmp.size () == 0)
@@ -446,7 +446,7 @@ public:
                     break;
 
                 case XLS_RECORD_BOOLERR:
-                    inferValueFromBoolErrCell ();
+                    inferValueFromBoolErrCell (trimWs);
                     break;
 
                 default:
