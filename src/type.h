@@ -382,6 +382,7 @@ public:
                 this->location_ =
                     CellPosition (std::make_pair (cell_->row, cell_->col));
             }
+        throw ExcelReader::NullCellException ("");
     };
 
     int
@@ -402,10 +403,6 @@ public:
         if (!type_.has_value () && cell_ != nullptr)
             {
                 inferValue (false);
-            }
-        if (!type_.has_value () && cell_ == nullptr)
-            {
-                throw ExcelReader::NullCellException ("");
             }
         return type_.value ();
     }
