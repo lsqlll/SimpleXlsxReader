@@ -124,14 +124,32 @@ private:
                 type_ = CellType::BLANK;
                 value_ = std::monostate{};
             }
-        else
+        try
             {
-                type_ = CellType::STRING;
-                value_ = trimWs ? trim (s) : s;
+                auto tmp = std::stod (s);
+                value_ = tmp;
+                type_ = CellType::NUMBER;
             }
+        catch (...)
+            {
+            }
+
+        try
+            {
+                auto strlower = tolower (s);
+                auto tmp =
+                    std::equal (strlower.begin (), strlower.end (), "bool");
+                value_ = tmp;
+                type_ = CellType::BOOL;
+            }
+        catch (...)
+            {
+            }
+        type_ = CellType::STRING;
+        value_ = trimWs ? trim (s) : s;
     };
     void
-    inferValueFromFormulaCell (bool trimWs)
+    inferValueFromFormulaCell ()
     {
         if (cell_->l == 0)
             {
@@ -181,7 +199,7 @@ private:
 
         // 处理字符串公式
         std::string str = cell_->str ? std::string (cell_->str) : "";
-        if (isEmpty (str, trimWs))
+        if (isEmpty (str))
             {
                 type_ = CellType::BLANK;
                 value_ = std::monostate{};
@@ -189,7 +207,7 @@ private:
         else
             {
                 type_ = CellType::STRING;
-                value_ = trimWs ? trim (str) : str;
+                value_ = str;
             }
     };
     void
@@ -383,6 +401,8 @@ public:
         return type_.value ();
     }
 
+    // 如果trim那么意味着推到字符串可能代码的值，例如" 123"代表123
+    // 否则只推到字面值
     void
     inferValue (const bool trimWs) // 添加 const 修饰符
     {
@@ -410,7 +430,7 @@ public:
 
                 case XLS_RECORD_FORMULA:
                 case XLS_RECORD_FORMULA_ALT:
-                    inferValueFromFormulaCell (trimWs);
+                    inferValueFromFormulaCell (); // 默认公式计算的值不需要改变，不需要我们做额外推理
                     break;
 
                 case XLS_RECORD_MULRK:
@@ -421,7 +441,9 @@ public:
 
                 case XLS_RECORD_MULBLANK:
                 case XLS_RECORD_BLANK:
-                    inferBlankCell ();
+                    inferBlankCell (trimWs);
+                    // 根据需要决定是否为逻辑上的空而非字面值上的空， 例如：
+                    // " "逻辑上是空，但值不是字面值上的空
                     break;
 
                 case XLS_RECORD_BOOLERR:
