@@ -193,7 +193,7 @@ private:
             }
     };
     void
-    inferValueFromNumberCell (bool trimWs)
+    inferValueFromNumberCell ()
     {
         if (isEmpty (std::to_string (cell_->col)))
             {
@@ -206,7 +206,7 @@ private:
         value_ = cell_->d;
     };
     void
-    inferValueFromBoolErrCell (bool trimWs)
+    inferValueFromBoolErrCell ()
     {
         if (cell_->str && strncmp ((char*)cell_->str, "bool", 4) == 0)
             {
@@ -231,10 +231,16 @@ private:
             }
     };
     void
-    inferBlankCell ()
+    inferBlankCell (bool trimWs)
     {
-        type_ = CellType::BLANK;
-        value_ = std::monostate{};
+        std::string tmp = trimWs ? trim (std::string (cell_->str)) : cell_->str;
+        if (isEmpty (tmp))
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+            }
+        type_ = CellType::STRING;
+        value_ = tmp;
     };
     void
     inferUnknownCell ()
@@ -389,7 +395,7 @@ public:
 
         if (!cell_)
             {
-                inferBlankCell ();
+                inferBlankCell (trimWs);
                 return;
             }
 
@@ -410,7 +416,7 @@ public:
                 case XLS_RECORD_MULRK:
                 case XLS_RECORD_NUMBER:
                 case XLS_RECORD_RK:
-                    inferValueFromNumberCell (trimWs);
+                    inferValueFromNumberCell ();
                     break;
 
                 case XLS_RECORD_MULBLANK:
@@ -419,7 +425,7 @@ public:
                     break;
 
                 case XLS_RECORD_BOOLERR:
-                    inferValueFromBoolErrCell (trimWs);
+                    inferValueFromBoolErrCell ();
                     break;
 
                 default:
