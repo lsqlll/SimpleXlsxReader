@@ -257,6 +257,13 @@ private:
     void
     inferBlankCell (bool trimWs)
     {
+        if (!cell_ || !cell_->str)
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+                return;
+            }
+
         std::string tmp = trimWs ? trim (std::string (cell_->str)) : cell_->str;
         if (isEmpty (tmp))
             {
