@@ -1,45 +1,42 @@
+#include < gtest.h>
 #include <algorithm>
 #include <cctype>
-#include <gtest/gtest.h>
 #include <string>
 
 // 被测试的函数实现
 inline std::string
-trim (const std::string& str)
+trim (const std::string &str)
 {
     if (str.empty ())
-	return str;
+        return str;
 
     auto start = str.find_first_not_of (" \t");
     if (start == std::string::npos)
-	return "";
+        return "";
 
     auto end = str.find_last_not_of (" \t");
     return str.substr (start, end - start + 1);
 }
 
 inline bool
-isEmpty (const std::string& raw_value, bool trims = false)
+isEmpty (const std::string &raw_value, bool trims = false)
 {
     if (raw_value.empty ())
-	{
-	    return true;
-	}
+    {
+        return true;
+    }
     if (trims)
-	{
-	    auto raw_string = trim (raw_value);
-	    return raw_string.empty ();
-	}
+    {
+        auto raw_string = trim (raw_value);
+        return raw_string.empty ();
+    }
 
     return std::all_of (raw_value.begin (), raw_value.end (),
-			[] (unsigned char c) { return std::isspace (c); });
+                        [] (unsigned char c) { return std::isspace (c); });
 }
 
 // trim函数测试用例
-TEST (TrimTest, EmptyString)
-{
-    EXPECT_EQ (trim (""), "");
-}
+TEST (TrimTest, EmptyString) { EXPECT_EQ (trim (""), ""); }
 
 TEST (TrimTest, OnlySpaces)
 {
@@ -176,7 +173,7 @@ TEST (IsEmptyTest, EdgeCases)
 
 // 必须的main函数
 int
-main (int argc, char** argv)
+main (int argc, char **argv)
 {
     ::testing::InitGoogleTest (&argc, argv);
     return RUN_ALL_TESTS ();

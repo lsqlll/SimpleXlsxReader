@@ -1,14 +1,15 @@
 #include "../src/Exceptions.h"
+#include "gtest/gtest.h"
 
 #include <cctype>
 #include <cmath>
 #include <cstring>
 #include <filesystem>
-#include <gtest/gtest.h>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <optional>
+#include <set>
 #include <sstream>
 #include <string>
 #include <variant>
@@ -23,7 +24,7 @@ struct Cell
     int xf;    // 格式信息
     int l;     // 长度或其他标志
     double d;  // 数值
-    char* str; // 字符串内容
+    char *str; // 字符串内容
 };
 
 // 模拟xls.h中的常量定义
@@ -54,83 +55,81 @@ namespace fs = std::filesystem;
 std::vector<std::string> formats = { "xls", "xlsx", "csv" };
 
 inline bool
-isExcelFormat (const std::string& format)
+isExcelFormat (const std::string &format)
 {
     return std::any_of (formats.begin (), formats.end (),
-                        [ format ] (const std::string& f)
-                            { return format == f; });
+                        [format] (const std::string &f)
+                        { return format == f; });
 }
 
 inline bool
-isValide (const fs::path& p)
+isValide (const fs::path &p)
 {
     if (!fs::exists (p))
-        {
-            throw ExcelReader::FileNotFoundException (p.string ());
-        }
+    {
+        throw ExcelReader::FileNotFoundException (p.string ());
+    }
 
     if (fs::is_directory (p))
-        {
-            throw ExcelReader::PathNotFileException (p.string ());
-        }
+    {
+        throw ExcelReader::PathNotFileException (p.string ());
+    }
 
     if (!fs::is_regular_file (p))
-        {
-            throw ExcelReader::UnsupportedException ("format " + p.string ());
-        }
+    {
+        throw ExcelReader::UnsupportedException ("format " + p.string ());
+    }
 
     if (!isExcelFormat (p.extension ().string ()))
-        {
-            throw ExcelReader::UnsupportedException (
-                "format " + p.extension ().string ());
-        }
+    {
+        throw ExcelReader::UnsupportedException ("format "
+                                                 + p.extension ().string ());
+    }
     return true;
 }
 
 inline std::string
-trim (const std::string& str)
+trim (const std::string &str)
 {
     auto start = str.find_first_not_of (" \t");
     auto end = str.find_last_not_of (" \t");
     if (start == std::string::npos)
-        {
-            return "";
-        }
+    {
+        return "";
+    }
     return str.substr (start, end - start + 1);
 }
 
 inline bool
-isEmpty (const std::string& raw_value, bool trims = false)
+isEmpty (const std::string &raw_value, bool trims = false)
 {
     if (raw_value.empty ())
-        {
-            return true;
-        }
+    {
+        return true;
+    }
     if (trims)
-        {
-            auto raw_string = trim (raw_value);
-            // 找到第一个非空字符的位置
-            auto start =
-                std::find_if_not (raw_string.begin (), raw_string.end (),
-                                  [] (unsigned char c)
-                                      { return std::isspace (c); });
-            // 找到最后一个非空字符的位置
-            auto end =
-                std::find_if_not (raw_string.rbegin (), raw_string.rend (),
-                                  [] (unsigned char c)
-                                      { return std::isspace (c); })
-                    .base ();
+    {
+        auto raw_string = trim (raw_value);
+        // 找到第一个非空字符的位置
+        auto start = std::find_if_not (raw_string.begin (), raw_string.end (),
+                                       [] (unsigned char c)
+                                       { return std::isspace (c); });
+        // 找到最后一个非空字符的位置
+        auto end = std::find_if_not (raw_string.rbegin (), raw_string.rend (),
+                                     [] (unsigned char c)
+                                     { return std::isspace (c); })
+                       .base ();
 
-            // 如果 start >= end，则表示去除空白后字符串为空
-            return start >= end;
-        }
+        // 如果 start >= end，则表示去除空白后字符串为空
+        return start >= end;
+    }
 
     return std::all_of (raw_value.begin (), raw_value.end (),
                         [] (unsigned char c) { return std::isspace (c); });
 }
 
 inline std::string
-tolower (const std::string& raw_value)
+tolower (const std::string &raw_value)
 {
     std::string tmp = raw_value;
     std::transform (tmp.begin (), tmp.end (), tmp.begin (),
@@ -145,8 +144,8 @@ isDateTime (int id)
     // ECMA-376 (version, date, and download URL given in XlsxCell.h)
     //
     // Example from L.2.7.4.4 p4698 for hypothetical cell D2
-    // Cell D2 contains the text "Q1" and is defined in the cell table of sheet1
-    // as:
+    // Cell D2 contains the text "Q1" and is defined in the cell table of
+    // sheet1 as:
     //
     // <c r="D2" s="7" t="s">
     //     <v>0</v>
@@ -175,22 +174,22 @@ isDateTime (int id)
     // Built-in format that's not a date
     if (id < 164)
         return false;
-    std::set<int> dateFormats = { 14, 15, 16, 17, 18, 19, 20, 21, 22,
-                                  27, 28, 29, 30, 31, 32, 33, 34, 35,
-                                  36, 50, 51, 52, 53, 54, 55, 56, 57,
-                                  58, 59, 60, 61, 62, 67, 68, 69 };
+    std::set<int> dateFormats
+        = { 14, 15, 16, 17, 18, 19, 20, 21, 22, 27, 28, 29,
+            30, 31, 32, 33, 34, 35, 36, 50, 51, 52, 53, 54,
+            55, 56, 57, 58, 59, 60, 61, 62, 67, 68, 69 };
 
     return dateFormats.count (id) > 0;
 }
 
 inline std::pair<std::size_t, std::size_t>
-parseAddress (const std::string& addr)
+parseAddress (const std::string &addr)
 {
     if (addr.empty ())
-        {
-            throw std::invalid_argument ("address can't be empty");
-        }
-    if (!std::isalpha (addr[ 0 ]))
+    {
+        throw std::invalid_argument ("address can't be empty");
+    }
+    if (!std::isalpha (addr[0]))
         throw std::invalid_argument (
             "The first character of the address is not alpha");
 
@@ -198,20 +197,20 @@ parseAddress (const std::string& addr)
 
     auto it = addr.begin ();
     while (it != addr.end () && std::isalpha (*it))
-        {
-            col = col * 26 + (*it - 'A' + 1);
-            ++it, ++idx;
-        }
+    {
+        col = col * 26 + (*it - 'A' + 1);
+        ++it, ++idx;
+    }
 
     std::string num = addr.substr (idx, addr.size ());
     try
-        {
-            row = std::stoi (num);
-        }
+    {
+        row = std::stoi (num);
+    }
     catch (...)
-        {
-            throw ExcelReader::parseAddrException (addr);
-        }
+    {
+        throw ExcelReader::parseAddrException (addr);
+    }
 
     return std::make_pair (row, col);
 }
@@ -221,74 +220,73 @@ struct CellPosition
     std::size_t col;
     std::string addr; // Like A1
 
-    template<typename T>
+    template <typename T>
     explicit CellPosition (T row, T col)
-        : row (static_cast<std::size_t> (row))
-        , col (static_cast<std::size_t> (col))
+        : row (static_cast<std::size_t> (row)),
+          col (static_cast<std::size_t> (col))
     {
         // 计算Excel地址 (A1, B2, etc.)
         int temp_col = col;
         std::string column_str = "";
         while (temp_col >= 0)
-            {
-                column_str = char ('A' + (temp_col % 26)) + column_str;
-                temp_col = (temp_col / 26) - 1;
-                if (temp_col < 0)
-                    break;
-            }
+        {
+            column_str = char ('A' + (temp_col % 26)) + column_str;
+            temp_col = (temp_col / 26) - 1;
+            if (temp_col < 0)
+                break;
+        }
         addr = column_str + std::to_string (row + 1);
     }
 
-    template<typename T>
+    template <typename T>
     explicit CellPosition (std::pair<T, T> loc)
-        : row (static_cast<std::size_t> (loc.first))
-        , col (static_cast<std::size_t> (loc.second))
+        : row (static_cast<std::size_t> (loc.first)),
+          col (static_cast<std::size_t> (loc.second))
     {
         // 计算Excel地址
         int temp_col = col;
         std::string column_str = "";
         while (temp_col >= 0)
-            {
-                column_str = char ('A' + (temp_col % 26)) + column_str;
-                temp_col = (temp_col / 26) - 1;
-                if (temp_col < 0)
-                    break;
-            }
+        {
+            column_str = char ('A' + (temp_col % 26)) + column_str;
+            temp_col = (temp_col / 26) - 1;
+            if (temp_col < 0)
+                break;
+        }
         addr = column_str + std::to_string (row + 1);
     }
 
-    explicit CellPosition (const std::string& addr)
-        : addr (addr)
+    explicit CellPosition (const std::string &addr) : addr (addr)
     {
         // 解析地址 A1 -> (0,0), B2 -> (1,1)
         std::string col_part = "";
         std::string row_part = "";
         size_t i = 0;
-        while (i < addr.length () && std::isalpha (addr[ i ]))
-            {
-                col_part += addr[ i ];
-                i++;
-            }
-        while (i < addr.length () && std::isdigit (addr[ i ]))
-            {
-                row_part += addr[ i ];
-                i++;
-            }
+        while (i < addr.length () && std::isalpha (addr[i]))
+        {
+            col_part += addr[i];
+            i++;
+        }
+        while (i < addr.length () && std::isdigit (addr[i]))
+        {
+            row_part += addr[i];
+            i++;
+        }
 
         int col_num = 0;
         for (char c : col_part)
-            {
-                col_num = col_num * 26 + (c - 'A' + 1);
-            }
+        {
+            col_num = col_num * 26 + (c - 'A' + 1);
+        }
 
         if (!row_part.empty ())
-            {
-                row = std::stoi (row_part) - 1;
-            }
+        {
+            row = std::stoi (row_part) - 1;
+        }
         else
-            {
-                row = 0;
-            }
+        {
+            row = 0;
+        }
 
         col = col_num >= 0 ? static_cast<std::size_t> (col_num - 1) : 0;
     };
@@ -296,8 +294,8 @@ struct CellPosition
 
 class XlsCell
 {
-private:
-    Cell* cell_;
+  private:
+    Cell *cell_;
     CellPosition location_;
     std::optional<CellType> type_;
     std::variant<std::monostate, std::string, double, bool> value_;
@@ -307,37 +305,36 @@ private:
     {
         std::string s = cell_->str == nullptr ? "" : std::string (cell_->str);
         if (isEmpty (s, trimWs))
-            {
-                type_ = CellType::BLANK;
-                value_ = std::monostate{};
-            }
+        {
+            type_ = CellType::BLANK;
+            value_ = std::monostate{};
+        }
         try
+        {
+            auto tmp = std::stod (s);
+            if (tmp)
             {
-                auto tmp = std::stod (s);
-                if (tmp)
-                    {
-                        value_ = tmp;
-                        type_ = CellType::NUMBER;
-                    }
+                value_ = tmp;
+                type_ = CellType::NUMBER;
             }
+        }
         catch (...)
-            {
-            }
+        {
+        }
 
         try
+        {
+            auto strlower = tolower (s);
+            auto tmp = std::equal (strlower.begin (), strlower.end (), "bool");
+            if (tmp)
             {
-                auto strlower = tolower (s);
-                auto tmp =
-                    std::equal (strlower.begin (), strlower.end (), "bool");
-                if (tmp)
-                    {
-                        value_ = tmp;
-                        type_ = CellType::BOOL;
-                    }
+                value_ = tmp;
+                type_ = CellType::BOOL;
             }
+        }
         catch (...)
-            {
-            }
+        {
+        }
         type_ = CellType::STRING;
         value_ = trimWs ? trim (s) : s;
     };
@@ -345,73 +342,72 @@ private:
     inferTypeFromFormulaCell ()
     {
         if (cell_->l == 0)
-            {
-                auto strVal = std::to_string (cell_->d);
-                if (isEmpty (strVal))
-                    {
-                        type_ = CellType::BLANK;
-                        value_ = std::monostate{};
-                        return;
-                    }
-                int format = cell_->xf;
-                type_ =
-                    (isDateTime (format)) ? CellType::DATE : CellType::NUMBER;
-                value_ = cell_->d;
-                return;
-            }
-
-        // 处理布尔公式
-        if (cell_->str && strncmp ((char*)cell_->str, "bool", 4) == 0)
-            {
-                bool isValidBool =
-                    (cell_->d == 0 && cell_->str
-                     && strcasecmp ((char*)cell_->str, "false") == 0)
-                    || (cell_->d == 1 && cell_->str
-                        && strcasecmp ((char*)cell_->str, "true") == 0);
-                if (isValidBool)
-                    {
-                        type_ = CellType::BLANK;
-                        value_ = std::monostate{};
-                    }
-                else
-                    {
-                        type_ = CellType::BOOL;
-                        value_ = cell_->d != 0;
-                    }
-                return;
-            }
-
-        // 处理错误公式
-        if (cell_->str && strncmp ((char*)cell_->str, "error", 5) == 0
-            && cell_->d > 0)
+        {
+            auto strVal = std::to_string (cell_->d);
+            if (isEmpty (strVal))
             {
                 type_ = CellType::BLANK;
                 value_ = std::monostate{};
                 return;
             }
+            int format = cell_->xf;
+            type_ = (isDateTime (format)) ? CellType::DATE : CellType::NUMBER;
+            value_ = cell_->d;
+            return;
+        }
+
+        // 处理布尔公式
+        if (cell_->str && strncmp ((char *)cell_->str, "bool", 4) == 0)
+        {
+            bool isValidBool
+                = (cell_->d == 0 && cell_->str
+                   && strcasecmp ((char *)cell_->str, "false") == 0)
+                  || (cell_->d == 1 && cell_->str
+                      && strcasecmp ((char *)cell_->str, "true") == 0);
+            if (isValidBool)
+            {
+                type_ = CellType::BLANK;
+                value_ = std::monostate{};
+            }
+            else
+            {
+                type_ = CellType::BOOL;
+                value_ = cell_->d != 0;
+            }
+            return;
+        }
+
+        // 处理错误公式
+        if (cell_->str && strncmp ((char *)cell_->str, "error", 5) == 0
+            && cell_->d > 0)
+        {
+            type_ = CellType::BLANK;
+            value_ = std::monostate{};
+            return;
+        }
 
         // 处理字符串公式
         std::string str = cell_->str ? std::string (cell_->str) : "";
         if (isEmpty (str))
-            {
-                type_ = CellType::BLANK;
-                value_ = std::monostate{};
-            }
+        {
+            type_ = CellType::BLANK;
+            value_ = std::monostate{};
+        }
         else
-            {
-                type_ = CellType::STRING;
-                value_ = str;
-            }
+        {
+            type_ = CellType::STRING;
+            value_ = str;
+        }
     };
     void
     inferTypeFromNumberCell ()
     {
         if (isEmpty (std::to_string (cell_->col)))
-            {
-                type_ = CellType::BLANK;
-                value_ = std::monostate{};
-                return;
-            }
+        {
+            type_ = CellType::BLANK;
+            value_ = std::monostate{};
+            return;
+        }
         int format = cell_->xf;
         type_ = (isDateTime (format)) ? CellType::DATE : CellType::NUMBER;
         value_ = cell_->d;
@@ -421,40 +417,41 @@ private:
     {
         std::string tmp = trimWs ? trim (cell_->str) : cell_->str;
         if (tmp.size () == 0)
-            {
-                type_ = CellType::BLANK;
-                value_ = std::monostate{};
-            }
+        {
+            type_ = CellType::BLANK;
+            value_ = std::monostate{};
+        }
         std::string strVal = cell_->str ? std::string (cell_->str) : "";
         std::string lowerStrVal = tolower (strVal);
 
         if (lowerStrVal == "false" || lowerStrVal == "true")
-            {
-                type_ = CellType::BOOL;
-                value_ = cell_->d != 0;
-            }
+        {
+            type_ = CellType::BOOL;
+            value_ = cell_->d != 0;
+        }
         else
-            {
-                type_ = CellType::STRING;
-                value_ = tmp;
-            }
+        {
+            type_ = CellType::STRING;
+            value_ = tmp;
+        }
     };
     void
     inferBlankCell (bool trimWs)
     {
         if (!cell_ || !cell_->str)
-            {
-                type_ = CellType::BLANK;
-                value_ = std::monostate{};
-                return;
-            }
+        {
+            type_ = CellType::BLANK;
+            value_ = std::monostate{};
+            return;
+        }
 
-        std::string tmp = trimWs ? trim (std::string (cell_->str)) : cell_->str;
+        std::string tmp
+            = trimWs ? trim (std::string (cell_->str)) : cell_->str;
         if (isEmpty (tmp))
-            {
-                type_ = CellType::BLANK;
-                value_ = std::monostate{};
-            }
+        {
+            type_ = CellType::BLANK;
+            value_ = std::monostate{};
+        }
         type_ = CellType::STRING;
         value_ = tmp;
     };
@@ -469,14 +466,14 @@ private:
     {
         bool boolValue = false;
 
-        if (auto* b = std::get_if<bool> (&value_))
-            {
-                boolValue = *b;
-            }
+        if (auto *b = std::get_if<bool> (&value_))
+        {
+            boolValue = *b;
+        }
         else if (cell_)
-            {
-                boolValue = cell_->d != 0.0;
-            }
+        {
+            boolValue = cell_->d != 0.0;
+        }
 
         return boolValue ? "TRUE" : "FALSE";
     }
@@ -486,14 +483,14 @@ private:
     {
         double value = 0.0;
 
-        if (auto* d = std::get_if<double> (&value_))
-            {
-                value = *d;
-            }
+        if (auto *d = std::get_if<double> (&value_))
+        {
+            value = *d;
+        }
         else if (cell_)
-            {
-                value = cell_->d;
-            }
+        {
+            value = cell_->d;
+        }
 
         return formatDouble (value);
     }
@@ -503,14 +500,14 @@ private:
     {
         std::string result;
 
-        if (auto* s = std::get_if<std::string> (&value_))
-            {
-                result = *s;
-            }
+        if (auto *s = std::get_if<std::string> (&value_))
+        {
+            result = *s;
+        }
         else if (cell_ && cell_->str)
-            {
-                result = std::string (cell_->str);
-            }
+        {
+            result = std::string (cell_->str);
+        }
 
         return trimWs ? trim (result) : result;
     }
@@ -523,57 +520,54 @@ private:
         // 检查是否为整数
         double intpart;
         if (std::modf (value, &intpart) == 0.0)
+        {
+            // 整数值：使用整数格式化
+            if (value >= std::numeric_limits<int64_t>::min ()
+                && value <= double (std::numeric_limits<int64_t>::max ()))
             {
-                // 整数值：使用整数格式化
-                if (value >= std::numeric_limits<int64_t>::min ()
-                    && value <= double (std::numeric_limits<int64_t>::max ()))
-                    {
-                        oss << static_cast<int64_t> (value);
-                    }
-                else
-                    {
-                        oss << std::fixed << std::setprecision (0) << value;
-                    }
+                oss << static_cast<int64_t> (value);
             }
+            else
+            {
+                oss << std::fixed << std::setprecision (0) << value;
+            }
+        }
         else
+        {
+            // 浮点值：智能格式化
+            oss << std::setprecision (15) << value;
+
+            std::string str = oss.str ();
+
+            // 移除尾随的0
+            if (str.find ('.') != std::string::npos)
             {
-                // 浮点值：智能格式化
-                oss << std::setprecision (15) << value;
-
-                std::string str = oss.str ();
-
                 // 移除尾随的0
-                if (str.find ('.') != std::string::npos)
-                    {
-                        // 移除尾随的0
-                        str.erase (str.find_last_not_of ('0') + 1,
-                                   std::string::npos);
-                        // 如果最后是小数点，也移除
-                        if (!str.empty () && str.back () == '.')
-                            {
-                                str.pop_back ();
-                            }
-                    }
-
-                return str;
+                str.erase (str.find_last_not_of ('0') + 1, std::string::npos);
+                // 如果最后是小数点，也移除
+                if (!str.empty () && str.back () == '.')
+                {
+                    str.pop_back ();
+                }
             }
+
+            return str;
+        }
 
         return oss.str ();
     }
 
-public:
-    explicit XlsCell (Cell* cell)
-        : cell_ (cell ? cell : nullptr)
-        , type_ (std::nullopt)
-        , location_ (CellPosition (0, 0))
-        , value_ (std::monostate{})
+  public:
+    explicit XlsCell (Cell *cell)
+        : cell_ (cell ? cell : nullptr), type_ (std::nullopt),
+          location_ (CellPosition (0, 0)), value_ (std::monostate{})
     {
         if (cell)
-            {
-                this->inferValue (false);
-                this->location_ =
-                    CellPosition (std::make_pair (cell_->row, cell_->col));
-            }
+        {
+            this->inferValue (false);
+            this->location_
+                = CellPosition (std::make_pair (cell_->row, cell_->col));
+        }
     };
 
     int
@@ -592,16 +586,15 @@ public:
     type ()
     {
         if (!type_.has_value () && cell_ != nullptr)
-            {
-                inferValue (false);
-            }
+        {
+            inferValue (false);
+        }
         if (!type_.has_value () && cell_ == nullptr)
-            {
-                throw ExcelReader::NullCellException ("");
-            }
+        {
+            throw ExcelReader::NullCellException ("");
+        }
         return type_.value ();
     }
-
 
     void
     inferValue (const bool trimWs) // 添加 const 修饰符
@@ -609,158 +602,158 @@ public:
         // 如果已经有类型，不需要重新推断（可以修改这个逻辑如果需要强制重新推断）
         if (type_.has_value () && type_ != CellType::UNKNOWN
             && cell_ != nullptr)
-            {
-                return;
-            }
+        {
+            return;
+        }
 
         if (!cell_)
-            {
-                inferBlankCell (trimWs);
-                return;
-            }
+        {
+            inferBlankCell (trimWs);
+            return;
+        }
 
         // 使用 switch 分发到具体的处理函数
         switch (cell_->id)
-            {
-                case XLS_RECORD_LABELSST:
-                case XLS_RECORD_LABEL:
-                case XLS_RECORD_RSTRING:
-                    inferTypeFromStringCell (trimWs);
-                    break;
+        {
+        case XLS_RECORD_LABELSST:
+        case XLS_RECORD_LABEL:
+        case XLS_RECORD_RSTRING:
+            inferTypeFromStringCell (trimWs);
+            break;
 
-                case XLS_RECORD_FORMULA:
-                case XLS_RECORD_FORMULA_ALT:
-                    inferTypeFromFormulaCell ();
-                    break;
+        case XLS_RECORD_FORMULA:
+        case XLS_RECORD_FORMULA_ALT:
+            inferTypeFromFormulaCell ();
+            break;
 
-                case XLS_RECORD_MULRK:
-                case XLS_RECORD_NUMBER:
-                case XLS_RECORD_RK:
-                    inferTypeFromNumberCell ();
-                    break;
+        case XLS_RECORD_MULRK:
+        case XLS_RECORD_NUMBER:
+        case XLS_RECORD_RK:
+            inferTypeFromNumberCell ();
+            break;
 
-                case XLS_RECORD_MULBLANK:
-                case XLS_RECORD_BLANK:
-                    inferBlankCell (trimWs);
-                    break;
+        case XLS_RECORD_MULBLANK:
+        case XLS_RECORD_BLANK:
+            inferBlankCell (trimWs);
+            break;
 
-                case XLS_RECORD_BOOLERR:
-                    inferTypeFromBoolErrCell (trimWs);
-                    break;
+        case XLS_RECORD_BOOLERR:
+            inferTypeFromBoolErrCell (trimWs);
+            break;
 
-                default:
-                    inferUnknownCell ();
-                    break;
-            }
+        default:
+            inferUnknownCell ();
+            break;
+        }
     }
 
     std::string
     asStdString (const bool trimWs,
-                 const std::vector<std::string>& stringTable) const
+                 const std::vector<std::string> &stringTable) const
     {
         // 处理未初始化的情况
         if (!type_.has_value ())
-            {
-                return "";
-            }
+        {
+            return "";
+        }
 
         CellType cellType = type_.value ();
 
         switch (cellType)
-            {
-                case CellType::UNKNOWN:
-                case CellType::BLANK:
-                    return "";
+        {
+        case CellType::UNKNOWN:
+        case CellType::BLANK:
+            return "";
 
-                case CellType::BOOL:
-                    return asBoolString ();
+        case CellType::BOOL:
+            return asBoolString ();
 
-                case CellType::DATE:
-                case CellType::NUMBER:
-                    return asNumberString ();
+        case CellType::DATE:
+        case CellType::NUMBER:
+            return asNumberString ();
 
-                case CellType::STRING:
-                    return asString (trimWs);
+        case CellType::STRING:
+            return asString (trimWs);
 
-                default:
-                    return "";
-            }
+        default:
+            return "";
+        }
     }
 
     bool
     asLogical () const
     {
         if (!cell_ && type_.value () == CellType::BLANK)
-            {
-                return false;
-            }
+        {
+            return false;
+        }
 
         switch (type_.value ())
+        {
+
+        case CellType::UNKNOWN:
+        case CellType::BLANK:
+        case CellType::DATE:
+        case CellType::STRING:
+            return false;
+
+        case CellType::BOOL:
+            if (auto *b = std::get_if<bool> (&value_))
             {
-
-                case CellType::UNKNOWN:
-                case CellType::BLANK:
-                case CellType::DATE:
-                case CellType::STRING:
-                    return false;
-
-                case CellType::BOOL:
-                    if (auto* b = std::get_if<bool> (&value_))
-                        {
-                            return *b;
-                        }
-                    return cell_->d != 0;
-
-                case CellType::NUMBER:
-                    if (auto* d = std::get_if<double> (&value_))
-                        {
-                            return *d != 0.0;
-                        }
-                    return cell_->d != 0;
-
-                default:
-                    return false;
+                return *b;
             }
+            return cell_->d != 0;
+
+        case CellType::NUMBER:
+            if (auto *d = std::get_if<double> (&value_))
+            {
+                return *d != 0.0;
+            }
+            return cell_->d != 0;
+
+        default:
+            return false;
+        }
     }
 
     double
     asDouble () const
     {
         if (!cell_ && type_.value () == CellType::BLANK)
-            {
-                return 0.0;
-            }
+        {
+            return 0.0;
+        }
 
         switch (type_.value ())
+        {
+
+        case CellType::UNKNOWN:
+        case CellType::BLANK:
+        case CellType::STRING:
+            return 0.0;
+
+        case CellType::BOOL:
+            if (auto *b = std::get_if<bool> (&value_))
             {
-
-                case CellType::UNKNOWN:
-                case CellType::BLANK:
-                case CellType::STRING:
-                    return 0.0;
-
-                case CellType::BOOL:
-                    if (auto* b = std::get_if<bool> (&value_))
-                        {
-                            return *b ? 1.0 : 0.0;
-                        }
-                    return cell_->d != 0 ? 1.0 : 0.0;
-
-                case CellType::DATE:
-                case CellType::NUMBER:
-                    if (auto* d = std::get_if<double> (&value_))
-                        {
-                            return *d;
-                        }
-                    return cell_->d;
-
-                default:
-                    return 0.0;
+                return *b ? 1.0 : 0.0;
             }
+            return cell_->d != 0 ? 1.0 : 0.0;
+
+        case CellType::DATE:
+        case CellType::NUMBER:
+            if (auto *d = std::get_if<double> (&value_))
+            {
+                return *d;
+            }
+            return cell_->d;
+
+        default:
+            return 0.0;
+        }
     }
 
     // 新增value()方法，返回实际存储的值
-    const std::variant<std::monostate, std::string, double, bool>&
+    const std::variant<std::monostate, std::string, double, bool> &
     value () const
     {
         return value_;
@@ -771,51 +764,51 @@ public:
     valueType () const
     {
         return std::visit (
-            [] (const auto& val) -> std::string
+            [] (const auto &val) -> std::string
+            {
+                using T = std::decay_t<decltype (val)>;
+                if constexpr (std::is_same_v<T, std::monostate>)
                 {
-                    using T = std::decay_t<decltype (val)>;
-                    if constexpr (std::is_same_v<T, std::monostate>)
-                        {
-                            return "monostate";
-                        }
-                    else if constexpr (std::is_same_v<T, std::string>)
-                        {
-                            return "string";
-                        }
-                    else if constexpr (std::is_same_v<T, double>)
-                        {
-                            return "double";
-                        }
-                    else if constexpr (std::is_same_v<T, bool>)
-                        {
-                            return "bool";
-                        }
-                    return "unknown";
-                },
+                    return "monostate";
+                }
+                else if constexpr (std::is_same_v<T, std::string>)
+                {
+                    return "string";
+                }
+                else if constexpr (std::is_same_v<T, double>)
+                {
+                    return "double";
+                }
+                else if constexpr (std::is_same_v<T, bool>)
+                {
+                    return "bool";
+                }
+                return "unknown";
+            },
             value_);
     }
 };
 
 // 用于单元测试的辅助函数
-Cell*
-createStringCell (int row, int col, const std::string& content)
+Cell *
+createStringCell (int row, int col, const std::string &content)
 {
-    Cell* cell = new Cell ();
+    Cell *cell = new Cell ();
     cell->row = row;
     cell->col = col;
     cell->id = XLS_RECORD_LABEL;
     cell->xf = 0;
     cell->l = 0;
     cell->d = 0.0;
-    cell->str = new char[ content.length () + 1 ];
+    cell->str = new char[content.length () + 1];
     strcpy (cell->str, content.c_str ());
     return cell;
 }
 
-Cell*
+Cell *
 createNumberCell (int row, int col, double value)
 {
-    Cell* cell = new Cell ();
+    Cell *cell = new Cell ();
     cell->row = row;
     cell->col = col;
     cell->id = XLS_RECORD_NUMBER;
@@ -826,25 +819,25 @@ createNumberCell (int row, int col, double value)
     return cell;
 }
 
-Cell*
+Cell *
 createBoolCell (int row, int col, bool value)
 {
-    Cell* cell = new Cell ();
+    Cell *cell = new Cell ();
     cell->row = row;
     cell->col = col;
     cell->id = XLS_RECORD_BOOLERR;
     cell->xf = 0;
     cell->l = 0;
     cell->d = value ? 1.0 : 0.0;
-    cell->str =
-        value ? const_cast<char*> ("true") : const_cast<char*> ("false");
+    cell->str
+        = value ? const_cast<char *> ("true") : const_cast<char *> ("false");
     return cell;
 }
 
-Cell*
+Cell *
 createBlankCell (int row, int col)
 {
-    Cell* cell = new Cell ();
+    Cell *cell = new Cell ();
     cell->row = row;
     cell->col = col;
     cell->id = XLS_RECORD_BLANK;
@@ -856,22 +849,22 @@ createBlankCell (int row, int col)
 }
 
 void
-deleteCell (Cell* cell)
+deleteCell (Cell *cell)
 {
     if (cell)
+    {
+        if (cell->str)
         {
-            if (cell->str)
-                {
-                    delete[] cell->str;
-                }
-            delete cell;
+            delete[] cell->str;
         }
+        delete cell;
+    }
 }
 
 // 测试XlsCell的基本功能
 class XlsCellTest : public ::testing::Test
 {
-protected:
+  protected:
     void
     SetUp () override
     {
@@ -882,25 +875,25 @@ protected:
     }
 
     // Helper functions to create test cells
-    Cell*
-    createTestStringCell (int row, int col, const std::string& content)
+    Cell *
+    createTestStringCell (int row, int col, const std::string &content)
     {
         return createStringCell (row, col, content);
     }
 
-    Cell*
+    Cell *
     createTestNumberCell (int row, int col, double value)
     {
         return createNumberCell (row, col, value);
     }
 
-    Cell*
+    Cell *
     createTestBoolCell (int row, int col, bool value)
     {
         return createBoolCell (row, col, value);
     }
 
-    Cell*
+    Cell *
     createTestBlankCell (int row, int col)
     {
         return createBlankCell (row, col);
@@ -911,7 +904,7 @@ protected:
 TEST_F (XlsCellTest, ConstructorWithValidCell)
 {
     // Given: 一个有效的字符串单元格
-    Cell* cell = createTestStringCell (0, 0, "Hello World");
+    Cell *cell = createTestStringCell (0, 0, "Hello World");
 
     // When: 创建XlsCell对象
     XlsCell xlsCell (cell);
@@ -936,7 +929,7 @@ TEST_F (XlsCellTest, ConstructorWithNullCell)
 TEST_F (XlsCellTest, StringCellHandling)
 {
     // Given: 一个包含内容的字符串单元格
-    Cell* cell = createTestStringCell (0, 0, "Test Content");
+    Cell *cell = createTestStringCell (0, 0, "Test Content");
     XlsCell xlsCell (cell);
 
     // When & Then: 检查各种转换
@@ -954,7 +947,7 @@ TEST_F (XlsCellTest, StringCellHandling)
 TEST_F (XlsCellTest, StringCellWithWhitespace)
 {
     // Given: 一个包含前后空格的字符串单元格
-    Cell* cell = createTestStringCell (0, 0, "  Test Content  ");
+    Cell *cell = createTestStringCell (0, 0, "  Test Content  ");
     XlsCell xlsCell (cell);
 
     EXPECT_EQ (xlsCell.asStdString (true, {}), "Test Content"); // trim=true
@@ -969,7 +962,7 @@ TEST_F (XlsCellTest, StringCellWithWhitespace)
 TEST_F (XlsCellTest, NumberCellHandling)
 {
     // Given: 一个数字单元格
-    Cell* cell = createTestNumberCell (0, 0, 123.456);
+    Cell *cell = createTestNumberCell (0, 0, 123.456);
     XlsCell xlsCell (cell);
 
     // When & Then: 检查各种转换
@@ -987,7 +980,7 @@ TEST_F (XlsCellTest, NumberCellHandling)
 TEST_F (XlsCellTest, IntegerCellHandling)
 {
     // Given: 一个整数单元格
-    Cell* cell = createTestNumberCell (0, 0, 42.0);
+    Cell *cell = createTestNumberCell (0, 0, 42.0);
     XlsCell xlsCell (cell);
 
     // When & Then: 检查字符串转换是否为整数形式
@@ -1001,7 +994,7 @@ TEST_F (XlsCellTest, IntegerCellHandling)
 TEST_F (XlsCellTest, BoolCellHandling)
 {
     // Given: 一个TRUE布尔单元格
-    Cell* trueCell = createTestBoolCell (0, 0, true);
+    Cell *trueCell = createTestBoolCell (0, 0, true);
     XlsCell trueXlsCell (trueCell);
 
     // When & Then: 检查TRUE值的各种转换
@@ -1015,7 +1008,7 @@ TEST_F (XlsCellTest, BoolCellHandling)
     // deleteCell (trueCell);
 
     // Given: 一个FALSE布尔单元格
-    Cell* falseCell = createTestBoolCell (0, 0, false);
+    Cell *falseCell = createTestBoolCell (0, 0, false);
     XlsCell falseXlsCell (falseCell);
 
     // When & Then: 检查FALSE值的各种转换
@@ -1032,7 +1025,7 @@ TEST_F (XlsCellTest, BoolCellHandling)
 TEST_F (XlsCellTest, BlankCellHandling)
 {
     // Given: 一个空白单元格
-    Cell* cell = createTestBlankCell (0, 0);
+    Cell *cell = createTestBlankCell (0, 0);
     XlsCell xlsCell (cell);
 
     // When & Then: 检查空白单元格的行为
@@ -1141,7 +1134,7 @@ TEST (StringTest, IsEmptyTest)
 }
 
 int
-main (int argc, char** argv)
+main (int argc, char **argv)
 {
     ::testing::InitGoogleTest (&argc, argv);
     return RUN_ALL_TESTS ();

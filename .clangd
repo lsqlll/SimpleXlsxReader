@@ -1,0 +1,18 @@
+# 项目根目录的 .clangd 文件
+CompileFlags:
+  Add: 
+    - "-std=c++17"
+    - "-Wall"
+    - "-Wextra"
+    - "-IE:/mingw64/include/c++/14.2.0"
+    - "-IE:/mingw64/include/c++/14.2.0/x86_64-w64-mingw32"
+    - "-IE:/mingw64/include"
+    - "-IE:/mingw64/x86_64-w64-mingw32/include"
+  
+  Compiler: "E:/mingw64/bin/g++.exe"
+
+Diagnostics:
+  UnusedIncludes: Strict
+
+Index:
+  Background: Skip

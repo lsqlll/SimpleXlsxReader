@@ -1,46 +1,46 @@
+#include < gtest.h>
 #include <algorithm>
 #include <cctype>
-#include <gtest/gtest.h>
 #include <string>
 
 // 被测函数实现
 inline std::string
-tolower (const std::string& raw_value)
+tolower (const std::string &raw_value)
 {
     std::string tmp{};
     // 修复原代码的问题：需要预分配空间或使用back_inserter
     tmp.resize (raw_value.length ());
     std::transform (raw_value.begin (), raw_value.end (), tmp.begin (),
-		    [] (char c) { return std::tolower (c); });
+                    [] (char c) { return std::tolower (c); });
     return tmp;
 }
 
 // 或者使用更安全的实现方式
 inline std::string
-tolower_safe (const std::string& raw_value)
+tolower_safe (const std::string &raw_value)
 {
     std::string tmp{};
     tmp.reserve (raw_value.length ()); // 预分配空间提高性能
     std::transform (raw_value.begin (), raw_value.end (),
-		    std::back_inserter (tmp),
-		    [] (char c) { return std::tolower (c); });
+                    std::back_inserter (tmp),
+                    [] (char c) { return std::tolower (c); });
     return tmp;
 }
 
 // 单元测试类
 class StringToLowerTest : public ::testing::Test
 {
-protected:
+  protected:
     void
     SetUp () override
     {
-	// 测试前准备
+        // 测试前准备
     }
 
     void
     TearDown () override
     {
-	// 测试后清理
+        // 测试后清理
     }
 };
 
@@ -101,7 +101,8 @@ TEST_F (StringToLowerTest, MixedCaseString_ReturnsLowercase)
 }
 
 // TC005: 测试包含数字和特殊字符
-TEST_F (StringToLowerTest, StringWithNumbersAndSpecialChars_PreservesNonLetters)
+TEST_F (StringToLowerTest,
+        StringWithNumbersAndSpecialChars_PreservesNonLetters)
 {
     // Arrange
     std::string input = "123ABC!@#";
@@ -159,7 +160,7 @@ TEST_F (StringToLowerTest, SafeImplementation_CompareWithOriginal)
 
 // 参数化测试：批量测试不同输入
 class StringToLowerParamTest
-    : public ::testing::TestWithParam<std::pair<std::string, std::string>>
+    : public ::testing::TestWithParam<std::pair<std::string, std::string> >
 {
 };
 
@@ -180,12 +181,12 @@ TEST_P (StringToLowerParamTest, BatchTest_Parametrized)
 INSTANTIATE_TEST_SUITE_P (
     StringToLowerTests, StringToLowerParamTest,
     ::testing::Values (std::make_pair ("", ""), std::make_pair ("ABC", "abc"),
-		       std::make_pair ("xyz", "xyz"),
-		       std::make_pair ("MiXeD CaSe", "mixed case"),
-		       std::make_pair ("123!@#", "123!@#")));
+                       std::make_pair ("xyz", "xyz"),
+                       std::make_pair ("MiXeD CaSe", "mixed case"),
+                       std::make_pair ("123!@#", "123!@#")));
 
 int
-main (int argc, char** argv)
+main (int argc, char **argv)
 {
     ::testing::InitGoogleTest (&argc, argv);
     return RUN_ALL_TESTS ();

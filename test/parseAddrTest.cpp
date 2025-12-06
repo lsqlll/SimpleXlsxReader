@@ -1,76 +1,76 @@
-#include <gtest/gtest.h>
+#include < gtest.h>
 #include <stdexcept>
 #include <string>
 
 // 假设ExcelReader类定义（如果不存在需要先定义）
 class ExcelReader
 {
-public:
+  public:
     class parseAddrException : public std::exception
     {
-    private:
-	std::string msg;
+      private:
+        std::string msg;
 
-    public:
-	explicit parseAddrException (const std::string& addr)
-	    : msg ("Failed to parse address: " + addr)
-	{
-	}
-	const char*
-	what () const noexcept override
-	{
-	    return msg.c_str ();
-	}
+      public:
+        explicit parseAddrException (const std::string &addr)
+            : msg ("Failed to parse address: " + addr)
+        {
+        }
+        const char *
+        what () const noexcept override
+        {
+            return msg.c_str ();
+        }
     };
 };
 
 // 声明被测函数（如果不在头文件中）
 inline std::pair<std::size_t, std::size_t>
-parseAddress (const std::string& addr)
+parseAddress (const std::string &addr)
 {
     if (addr.empty ())
-	{
-	    throw std::invalid_argument ("address can't be empty");
-	}
+    {
+        throw std::invalid_argument ("address can't be empty");
+    }
     if (!std::isalpha (addr[0]))
-	throw std::invalid_argument (
-	    "The first character of the address is not alpha");
+        throw std::invalid_argument (
+            "The first character of the address is not alpha");
 
     std::size_t row{ 0 }, col{ 0 }, idx{ 0 };
 
     auto it = addr.begin ();
     while (it != addr.end () && std::isalpha (*it))
-	{
-	    col = col * 26 + (*it - 'A' + 1);
-	    ++it, ++idx;
-	}
+    {
+        col = col * 26 + (*it - 'A' + 1);
+        ++it, ++idx;
+    }
 
     std::string num = addr.substr (idx, addr.size ());
     try
-	{
-	    row = std::stoi (num);
-	}
+    {
+        row = std::stoi (num);
+    }
     catch (...)
-	{
-	    throw ExcelReader::parseAddrException (addr);
-	}
+    {
+        throw ExcelReader::parseAddrException (addr);
+    }
 
     return std::make_pair (row, col);
 }
 // Test suite for parseAddress function
 class ParseAddressTest : public ::testing::Test
 {
-protected:
+  protected:
     void
     SetUp () override
     {
-	// Setup code if needed
+        // Setup code if needed
     }
 
     void
     TearDown () override
     {
-	// Cleanup code if needed
+        // Cleanup code if needed
     }
 };
 
@@ -169,7 +169,7 @@ TEST_F (ParseAddressTest, MixedCaseLetters)
 // Parameterized test for multiple valid addresses
 class ParseAddressParamTest
     : public ::testing::TestWithParam<
-	  std::tuple<std::string, std::size_t, std::size_t>>
+          std::tuple<std::string, std::size_t, std::size_t> >
 {
 };
 
@@ -178,22 +178,23 @@ TEST_P (ParseAddressParamTest, ValidAddresses)
 {
     auto [address, expected_row, expected_col] = GetParam ();
     auto result = parseAddress (address);
-    EXPECT_EQ (result.first, expected_row) << "Failed for address: " << address;
+    EXPECT_EQ (result.first, expected_row)
+        << "Failed for address: " << address;
     EXPECT_EQ (result.second, expected_col)
-	<< "Failed for address: " << address;
+        << "Failed for address: " << address;
 }
 
 // 测试数据：{地址字符串, 期望行号, 期望列号}
 INSTANTIATE_TEST_SUITE_P (
     ValidAddressTests, ParseAddressParamTest,
     ::testing::Values (
-	std::make_tuple ("A1", 1, 1), std::make_tuple ("B1", 1, 2),
-	std::make_tuple ("C1", 1, 3), std::make_tuple ("Z1", 1, 26),
-	std::make_tuple ("AA1", 1, 27), std::make_tuple ("AB1", 1, 28),
-	std::make_tuple ("AZ1", 1, 52), std::make_tuple ("BA1", 1, 53),
-	std::make_tuple ("A100", 100, 1), std::make_tuple ("Z999", 999, 26)));
+        std::make_tuple ("A1", 1, 1), std::make_tuple ("B1", 1, 2),
+        std::make_tuple ("C1", 1, 3), std::make_tuple ("Z1", 1, 26),
+        std::make_tuple ("AA1", 1, 27), std::make_tuple ("AB1", 1, 28),
+        std::make_tuple ("AZ1", 1, 52), std::make_tuple ("BA1", 1, 53),
+        std::make_tuple ("A100", 100, 1), std::make_tuple ("Z999", 999, 26)));
 int
-main (int argc, char** argv)
+main (int argc, char **argv)
 {
     ::testing::InitGoogleTest (&argc, argv);
     return RUN_ALL_TESTS ();
