@@ -14,5 +14,27 @@
         "editor.stickyScroll.defaultModel": "foldingProviderModel",
         "editor.suggest.insertMode": "replace",
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
-    }
+    },
+    "[cmake]": {
+        "editor.defaultFormatter": "cheshirekow.cmake-format"
+    },
+    "terminal.integrated.defaultProfile.windows": "MSYS2",
+    "cmake.configureSettings": {
+        "CMAKE_C_COMPILER": "E:/msys64/mingw64/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "E:/msys64/mingw64/bin/g++.exe",
+        "CMAKE_MAKE_PROGRAM": "E:/msys64/usr/bin/make.exe"
+    },
+    "cmake.generator": "MinGW Makefiles",
+    // C++ 设置
+    "C_Cpp.default.compilerPath": "E:/msys64/mingw64/bin/g++.exe",
+    "C_Cpp.default.includePath": [
+        "E:/msys64/mingw64/include",
+        "E:/msys64/mingw64/x86_64-w64-mingw32/include"
+    ],
+    // 文件路径设置
+    "files.associations": {
+        "*.h": "c"
+    },
+    // 调试设置
+    "debug.terminal.clearBeforeReusing": false
 }

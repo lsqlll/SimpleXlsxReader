@@ -1,8 +1,8 @@
 // Header-only configuration test
 
-#include " gtest.h"
 #include "fmt/base.h"
 #include "fmt/ostream.h"
+#include "gtest.h"
 
 #ifndef FMT_HEADER_ONLY
 #  error "Not in the header-only mode."

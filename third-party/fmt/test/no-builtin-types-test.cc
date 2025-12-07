@@ -5,7 +5,7 @@
 //
 // For the license information refer to format.h.
 
-#include " gtest.h"
+#include "gtest.h"
 
 #if !defined(__GNUC__) || __GNUC__ >= 5
 #  define FMT_BUILTIN_TYPES 0

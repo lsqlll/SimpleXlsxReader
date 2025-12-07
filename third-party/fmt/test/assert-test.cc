@@ -9,8 +9,8 @@
 //
 // For the license information refer to format.h.
 
-#include " gtest.h"
 #include "fmt/base.h"
+#include "gtest.h"
 
 TEST(assert_test, fail) {
 #if GTEST_HAS_DEATH_TEST

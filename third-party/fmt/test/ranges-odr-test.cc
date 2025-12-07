@@ -7,9 +7,9 @@
 
 #include <vector>
 
-#include " gtest.h"
 #include "fmt/format.h"
 #include "fmt/ranges.h"
+#include "gtest.h"
 
 // call fmt::format from another translation unit to test ODR
 TEST(ranges_odr_test, format_vector) {

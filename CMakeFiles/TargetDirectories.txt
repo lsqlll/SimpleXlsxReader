@@ -1,3 +1,0 @@
-/data/C/DB/CMakeFiles/xls_to_csv.dir
-/data/C/DB/CMakeFiles/edit_cache.dir
-/data/C/DB/CMakeFiles/rebuild_cache.dir

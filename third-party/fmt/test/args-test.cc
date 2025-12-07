@@ -9,7 +9,7 @@
 
 #include <memory>
 
-#include " gtest.h"
+#include "gtest.h"
 
 TEST(args_test, basic) {
   fmt::dynamic_format_arg_store<fmt::format_context> store;

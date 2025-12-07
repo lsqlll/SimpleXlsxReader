@@ -300,7 +300,7 @@
 // here, as Google Mock depends on Google Test.  Only add a utility
 // here if it's truly specific to Google Mock.
 
-#include " gtest.h"
+ #include "gtest.h"
 // Copyright 2015, Google Inc.
 // All rights reserved.
 //

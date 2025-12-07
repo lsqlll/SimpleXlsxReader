@@ -1,6 +1,7 @@
 #include "../src/Exceptions.h"
 #include "gtest/gtest.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstring>
@@ -209,7 +210,7 @@ parseAddress (const std::string &addr)
     }
     catch (...)
     {
-        throw ExcelReader::parseAddrException (addr);
+        throw ExcelReader::ParseAddrException (addr);
     }
 
     return std::make_pair (row, col);
