@@ -5,12 +5,14 @@
 
 #include <cctype>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <iomanip>
 #include <limits>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <variant>
 
 extern "C"
@@ -18,7 +20,7 @@ extern "C"
 #include "xls.h"
 }
 
-enum class CellType
+enum class CellType : uint8_t
 {
     STRING = 0,
     NUMBER,
@@ -40,15 +42,14 @@ struct CellPosition
           col (static_cast<std::size_t> (col))
     {
         // 计算Excel地址 (A1, B2, etc.)
-        int temp_col = col;
-        std::string column_str = "";
-        while (temp_col >= 0)
+        std::string column_str;
+
+        while (col >= 0)
         {
-            column_str = char ('A' + (temp_col % 26)) + column_str;
-            temp_col = (temp_col / 26) - 1;
-            if (temp_col < 0)
-                break;
+            column_str += char ('A' + (col % 26));
+            col = col / 26 - 1;
         }
+
         addr = column_str + std::to_string (row + 1);
     }
 
@@ -58,39 +59,36 @@ struct CellPosition
           col (static_cast<std::size_t> (loc.second))
     {
         // 计算Excel地址
-        int temp_col = col;
-        std::string column_str = "";
-        while (temp_col >= 0)
+        std::string column_str;
+
+        while (col >= 0)
         {
-            column_str = char ('A' + (temp_col % 26)) + column_str;
-            temp_col = (temp_col / 26) - 1;
-            if (temp_col < 0)
-                break;
+            column_str += char ('A' + (col % 26));
+            col = col / 26 - 1;
         }
-        addr = column_str + std::to_string (row + 1);
     }
 
     explicit CellPosition (const std::string &addr) : addr (addr)
     {
         // 解析地址 A1 -> (0,0), B2 -> (1,1)
-        std::string col_part = "";
-        std::string row_part = "";
-        size_t i = 0;
-        while (i < addr.length () && std::isalpha (addr[i]))
+        std::string col_part;
+        std::string row_part;
+        size_t idx = 0;
+        while (idx < addr.length () && (std::isalpha (addr[idx]) != 0))
         {
-            col_part += addr[i];
-            i++;
+            col_part += addr[idx];
+            idx++;
         }
-        while (i < addr.length () && std::isdigit (addr[i]))
+        while (idx < addr.length () && (std::isdigit (addr[idx]) != 0))
         {
-            row_part += addr[i];
-            i++;
+            row_part += addr[idx];
+            idx++;
         }
 
         int col_num = 0;
-        for (char c : col_part)
+        for (char chr : col_part)
         {
-            col_num = col_num * 26 + (c - 'A' + 1);
+            col_num = col_num * 26 + (chr - 'A' + 1);
         }
 
         if (!row_part.empty ())
@@ -125,7 +123,7 @@ class XlsCell
         try
         {
             auto tmp = std::stod (s);
-            if (tmp)
+            if (tmp < std::numeric_limits<double>::epsilon ())
             {
                 value_ = tmp;
                 type_ = CellType::NUMBER;
@@ -155,6 +153,18 @@ class XlsCell
     void
     inferValueFromFormulaCell ()
     {
+        auto getStringView = [this] () -> std::optional<std::string_view>
+        {
+            if (!cell_->str)
+            {
+                return std::nullopt;
+            }
+            return std::string_view (cell_->str);
+        };
+
+        auto startsWith = [] (std::string_view str, std::string_view prefix)
+        { return str.substr (0, prefix.size ()) == prefix; };
+
         if (cell_->l == 0)
         {
             auto strVal = std::to_string (cell_->d);
@@ -171,13 +181,12 @@ class XlsCell
         }
 
         // 处理布尔公式
-        if (cell_->str && strncmp ((char *)cell_->str, "bool", 4) == 0)
+        auto strView = std::string_view (cell_->str);
+        if ((cell_->str != nullptr) && strView.substr (0, 4) == "bool")
         {
             bool isValidBool
-                = (cell_->d == 0 && cell_->str
-                   && strcasecmp ((char *)cell_->str, "false") == 0)
-                  || (cell_->d == 1 && cell_->str
-                      && strcasecmp ((char *)cell_->str, "true") == 0);
+                = (cell_->d == 0 && strView.substr (0, 5) == "false")
+                  || (cell_->d == 1 && strView.substr (0, 4) == "true");
             if (isValidBool)
             {
                 type_ = CellType::BLANK;
