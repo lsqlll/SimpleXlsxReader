@@ -2,6 +2,30 @@
 	"entries" : 
 	[
 		{
+			"name" : "BOOST_FILESYSTEM_LIB",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "BOOST_FILESYSTEM_LIB-NOTFOUND"
+		},
+		{
+			"name" : "BOOST_LOCALE_LIB",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "BOOST_LOCALE_LIB-NOTFOUND"
+		},
+		{
 			"name" : "BUILD_GMOCK",
 			"properties" : 
 			[
@@ -12,6 +36,74 @@
 			],
 			"type" : "BOOL",
 			"value" : "ON"
+		},
+		{
+			"name" : "B_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for B."
+				}
+			],
+			"type" : "PATH",
+			"value" : "B_DIR-NOTFOUND"
+		},
+		{
+			"name" : "Boost_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for Boost."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/Boost-1.89.0"
+		},
+		{
+			"name" : "Boost_FILESYSTEM_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : ""
+				}
+			],
+			"type" : "STRING",
+			"value" : "E:/msys64/mingw64/bin/libboost_filesystem-mt.dll"
+		},
+		{
+			"name" : "Boost_INCLUDE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/include"
+		},
+		{
+			"name" : "Boost_LOCALE_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : ""
+				}
+			],
+			"type" : "STRING",
+			"value" : "E:/msys64/mingw64/bin/libboost_locale-mt.dll"
 		},
 		{
 			"name" : "CMAKE_ADDR2LINE",
@@ -648,6 +740,18 @@
 			],
 			"type" : "BOOL",
 			"value" : "OFF"
+		},
+		{
+			"name" : "CMAKE_HAVE_LIBC_PTHREAD",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Test CMAKE_HAVE_LIBC_PTHREAD"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "1"
 		},
 		{
 			"name" : "CMAKE_HOME_DIRECTORY",
@@ -1622,6 +1726,18 @@
 			"value" : "FALSE"
 		},
 		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_Boost",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding Boost"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[E:/msys64/mingw64/lib/cmake/Boost-1.89.0/BoostConfig.cmake][ ][v1.89.0(1.89.0)]"
+		},
+		{
 			"name" : "GTEST_HAS_ABSL",
 			"properties" : 
 			[
@@ -1632,6 +1748,406 @@
 			],
 			"type" : "BOOL",
 			"value" : "OFF"
+		},
+		{
+			"name" : "ICU_DATA_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU data library (debug)"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "ICU_DATA_LIBRARY_DEBUG-NOTFOUND"
+		},
+		{
+			"name" : "ICU_DATA_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU data library (release)"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/lib/libicudt.dll.a"
+		},
+		{
+			"name" : "ICU_DERB_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU derb executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/derb.exe"
+		},
+		{
+			"name" : "ICU_GENBRK_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU genbrk executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/genbrk.exe"
+		},
+		{
+			"name" : "ICU_GENCCODE_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU genccode executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/sbin/genccode.exe"
+		},
+		{
+			"name" : "ICU_GENCFU_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU gencfu executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/gencfu.exe"
+		},
+		{
+			"name" : "ICU_GENCMN_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU gencmn executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/sbin/gencmn.exe"
+		},
+		{
+			"name" : "ICU_GENCNVAL_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU gencnval executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/gencnval.exe"
+		},
+		{
+			"name" : "ICU_GENDICT_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU gendict executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/gendict.exe"
+		},
+		{
+			"name" : "ICU_GENNORM2_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU gennorm2 executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/sbin/gennorm2.exe"
+		},
+		{
+			"name" : "ICU_GENRB_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU genrb executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/genrb.exe"
+		},
+		{
+			"name" : "ICU_GENSPREP_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU gensprep executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/sbin/gensprep.exe"
+		},
+		{
+			"name" : "ICU_I18N_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU i18n library (debug)"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "ICU_I18N_LIBRARY_DEBUG-NOTFOUND"
+		},
+		{
+			"name" : "ICU_I18N_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU i18n library (release)"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/lib/libicuin.dll.a"
+		},
+		{
+			"name" : "ICU_ICU-CONFIG_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU icu-config executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/icu-config"
+		},
+		{
+			"name" : "ICU_ICUINFO_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU icuinfo executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/icuinfo.exe"
+		},
+		{
+			"name" : "ICU_ICUPKG_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU icupkg executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/sbin/icupkg.exe"
+		},
+		{
+			"name" : "ICU_INCLUDE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU include directory"
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/include"
+		},
+		{
+			"name" : "ICU_MAKECONV_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU makeconv executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/makeconv.exe"
+		},
+		{
+			"name" : "ICU_MAKEFILE_INC",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU Makefile.inc data file"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/lib/icu/77.1/Makefile.inc"
+		},
+		{
+			"name" : "ICU_PKGDATA_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU pkgdata executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/pkgdata.exe"
+		},
+		{
+			"name" : "ICU_PKGDATA_INC",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU pkgdata.inc data file"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/lib/icu/77.1/pkgdata.inc"
+		},
+		{
+			"name" : "ICU_UCONV_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU uconv executable"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/bin/uconv.exe"
+		},
+		{
+			"name" : "ICU_UC_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU uc library (debug)"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "ICU_UC_LIBRARY_DEBUG-NOTFOUND"
+		},
+		{
+			"name" : "ICU_UC_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "ICU uc library (release)"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/lib/libicuuc.dll.a"
 		},
 		{
 			"name" : "INSTALL_GTEST",
@@ -1646,6 +2162,38 @@
 			"value" : "ON"
 		},
 		{
+			"name" : "Iconv_INCLUDE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "iconv include directory"
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/include"
+		},
+		{
+			"name" : "Iconv_LIBRARY",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "iconv library (if not in the C library)"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "E:/msys64/mingw64/lib/libiconv.dll.a"
+		},
+		{
 			"name" : "LIBXLS_LIBRARY",
 			"properties" : 
 			[
@@ -1658,6 +2206,102 @@
 			"value" : "E:/Cpp/simpleTableReader/third-party/libxls/lib/mingw64/lib/libxlsreader.a"
 		},
 		{
+			"name" : "_BOOST_INCLUDEDIR_LAST",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Last used BOOST_INCLUDEDIR value."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "E:/Cpp/simpleTableReader/third-party/Boost_1_89_0/include"
+		},
+		{
+			"name" : "_BOOST_LIBRARYDIR_LAST",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Last used BOOST_LIBRARYDIR value."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "E:/Cpp/simpleTableReader/third-party/Boost_1_89_0/lib"
+		},
+		{
+			"name" : "_BOOST_ROOT_LAST",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Last used BOOST_ROOT value."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "E:/Cpp/simpleTableReader/third-party/Boost_1_89_0"
+		},
+		{
+			"name" : "_Boost_COMPONENTS_SEARCHED",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Components requested for this build tree."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : ""
+		},
+		{
+			"name" : "_Boost_INCLUDE_DIR_LAST",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Last used Boost_INCLUDE_DIR value."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "E:/msys64/mingw64/include"
+		},
+		{
+			"name" : "_Boost_NAMESPACE_LAST",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Last used Boost_NAMESPACE value."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "boost"
+		},
+		{
+			"name" : "_Boost_NO_SYSTEM_PATHS_LAST",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Last used Boost_NO_SYSTEM_PATHS value."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "ON"
+		},
+		{
+			"name" : "_Boost_USE_MULTITHREADED_LAST",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Last used Boost_USE_MULTITHREADED value."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "TRUE"
+		},
+		{
 			"name" : "_GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX",
 			"properties" : 
 			[
@@ -1668,6 +2312,666 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "e:/Cpp/simpleTableReader/install"
+		},
+		{
+			"name" : "boost_algorithm_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_algorithm."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_algorithm-1.89.0"
+		},
+		{
+			"name" : "boost_align_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_align."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_align-1.89.0"
+		},
+		{
+			"name" : "boost_array_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_array."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_array-1.89.0"
+		},
+		{
+			"name" : "boost_assert_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_assert."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_assert-1.89.0"
+		},
+		{
+			"name" : "boost_atomic_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_atomic."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_atomic-1.89.0-shared"
+		},
+		{
+			"name" : "boost_bind_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_bind."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_bind-1.89.0"
+		},
+		{
+			"name" : "boost_charconv_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_charconv."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_charconv-1.89.0-shared"
+		},
+		{
+			"name" : "boost_chrono_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_chrono."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_chrono-1.89.0-shared"
+		},
+		{
+			"name" : "boost_concept_check_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_concept_check."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_concept_check-1.89.0"
+		},
+		{
+			"name" : "boost_config_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_config."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_config-1.89.0"
+		},
+		{
+			"name" : "boost_container_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_container."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_container-1.89.0-shared"
+		},
+		{
+			"name" : "boost_container_hash_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_container_hash."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_container_hash-1.89.0"
+		},
+		{
+			"name" : "boost_conversion_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_conversion."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_conversion-1.89.0"
+		},
+		{
+			"name" : "boost_core_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_core."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_core-1.89.0"
+		},
+		{
+			"name" : "boost_date_time_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_date_time."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_date_time-1.89.0-shared"
+		},
+		{
+			"name" : "boost_describe_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_describe."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_describe-1.89.0"
+		},
+		{
+			"name" : "boost_detail_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_detail."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_detail-1.89.0"
+		},
+		{
+			"name" : "boost_exception_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_exception."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_exception-1.89.0"
+		},
+		{
+			"name" : "boost_filesystem_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_filesystem."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_filesystem-1.89.0-shared"
+		},
+		{
+			"name" : "boost_function_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_function."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_function-1.89.0"
+		},
+		{
+			"name" : "boost_function_types_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_function_types."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_function_types-1.89.0"
+		},
+		{
+			"name" : "boost_functional_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_functional."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_functional-1.89.0"
+		},
+		{
+			"name" : "boost_fusion_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_fusion."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_fusion-1.89.0"
+		},
+		{
+			"name" : "boost_headers_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_headers."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_headers-1.89.0"
+		},
+		{
+			"name" : "boost_integer_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_integer."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_integer-1.89.0"
+		},
+		{
+			"name" : "boost_intrusive_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_intrusive."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_intrusive-1.89.0"
+		},
+		{
+			"name" : "boost_io_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_io."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_io-1.89.0"
+		},
+		{
+			"name" : "boost_iterator_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_iterator."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_iterator-1.89.0"
+		},
+		{
+			"name" : "boost_lexical_cast_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_lexical_cast."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_lexical_cast-1.89.0"
+		},
+		{
+			"name" : "boost_locale_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_locale."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_locale-1.89.0-shared"
+		},
+		{
+			"name" : "boost_move_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_move."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_move-1.89.0"
+		},
+		{
+			"name" : "boost_mp11_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_mp11."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_mp11-1.89.0"
+		},
+		{
+			"name" : "boost_mpl_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_mpl."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_mpl-1.89.0"
+		},
+		{
+			"name" : "boost_numeric_conversion_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_numeric_conversion."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_numeric_conversion-1.89.0"
+		},
+		{
+			"name" : "boost_optional_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_optional."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_optional-1.89.0"
+		},
+		{
+			"name" : "boost_predef_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_predef."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_predef-1.89.0"
+		},
+		{
+			"name" : "boost_preprocessor_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_preprocessor."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_preprocessor-1.89.0"
+		},
+		{
+			"name" : "boost_range_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_range."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_range-1.89.0"
+		},
+		{
+			"name" : "boost_ratio_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_ratio."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_ratio-1.89.0"
+		},
+		{
+			"name" : "boost_regex_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_regex."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_regex-1.89.0"
+		},
+		{
+			"name" : "boost_scope_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_scope."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_scope-1.89.0"
+		},
+		{
+			"name" : "boost_smart_ptr_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_smart_ptr."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_smart_ptr-1.89.0"
+		},
+		{
+			"name" : "boost_static_assert_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_static_assert."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_static_assert-1.89.0"
+		},
+		{
+			"name" : "boost_string_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_string."
+				}
+			],
+			"type" : "PATH",
+			"value" : "boost_string_DIR-NOTFOUND"
+		},
+		{
+			"name" : "boost_system_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_system."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_system-1.89.0"
+		},
+		{
+			"name" : "boost_thread_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_thread."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_thread-1.89.0-shared"
+		},
+		{
+			"name" : "boost_throw_exception_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_throw_exception."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_throw_exception-1.89.0"
+		},
+		{
+			"name" : "boost_tokenizer_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_tokenizer."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_tokenizer-1.89.0"
+		},
+		{
+			"name" : "boost_tuple_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_tuple."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_tuple-1.89.0"
+		},
+		{
+			"name" : "boost_type_traits_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_type_traits."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_type_traits-1.89.0"
+		},
+		{
+			"name" : "boost_typeof_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_typeof."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_typeof-1.89.0"
+		},
+		{
+			"name" : "boost_unordered_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_unordered."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_unordered-1.89.0"
+		},
+		{
+			"name" : "boost_utility_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_utility."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_utility-1.89.0"
+		},
+		{
+			"name" : "boost_variant2_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_variant2."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_variant2-1.89.0"
+		},
+		{
+			"name" : "boost_winapi_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for boost_winapi."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/msys64/mingw64/lib/cmake/boost_winapi-1.89.0"
 		},
 		{
 			"name" : "cmake_package_name",

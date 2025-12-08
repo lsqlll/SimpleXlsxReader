@@ -7,21 +7,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 设置第三方库路径
 set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third-party)
 set(GTEST_DIR ${THIRD_PARTY_DIR}/googletest)
+set(BOOST_DIR ${THIRD_PARTY_DIR}/Boost_1_89_0)
+
+# 完全禁用系统的 Boost 配置
+set(Boost_NO_BOOST_CMAKE ON)
+set(Boost_NO_SYSTEM_PATHS ON)
+set(BOOST_ROOT ${BOOST_DIR})
+set(BOOST_INCLUDEDIR ${BOOST_DIR}/include)
 
 add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
 
-# 查找 libxls（如果已经编译好）
+# 查找 libxls
 set(LIBXLS_INCLUDE_DIR ${THIRD_PARTY_DIR}/libxls/include)
 set(LIBXLS_LIBRARY_DIR ${THIRD_PARTY_DIR}/libxls/lib/mingw64/lib)
 
-# 查找 libxls 库文件
 find_library(LIBXLS_LIBRARY
     NAMES xls libxls xlsreader
     PATHS ${LIBXLS_LIBRARY_DIR}
     NO_DEFAULT_PATH
 )
 
-# 创建 libxls 导入目标
 if(LIBXLS_LIBRARY)
     message(STATUS "Found libxls: ${LIBXLS_LIBRARY}")
     
@@ -31,11 +36,17 @@ if(LIBXLS_LIBRARY)
         INTERFACE_INCLUDE_DIRECTORIES ${LIBXLS_INCLUDE_DIR}
     )
 else()
-    # 如果没找到预编译的 libxls，尝试从源码构建
     message(STATUS "libxls library not found")
 endif()
 
-# 创建可执行文件
+# 检查 Boost 目录结构
+message(STATUS "Checking Boost directory: ${BOOST_DIR}")
+if(EXISTS ${BOOST_DIR}/include/boost)
+    message(STATUS "Boost headers found")
+else()
+    message(WARNING "Boost headers not found at ${BOOST_DIR}/include/boost")
+endif()
+
 add_executable(CellFuncTest test/CellfuncTest.cpp src/Exceptions.h)
 
 # 链接库
@@ -52,6 +63,7 @@ target_include_directories(CellFuncTest PRIVATE
     ${LIBXLS_INCLUDE_DIR}
     ${GTEST_DIR}/googletest/include
     ${GTEST_DIR}/googlemock/include
+    ${BOOST_INCLUDE_DIRS}
 )
 
 # 设置输出目录

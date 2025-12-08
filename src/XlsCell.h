@@ -9,12 +9,13 @@
 #include <string_view>
 #include <variant>
 
+#include "utils.h"
+
 extern "C"
 {
 #include "xls.h"
 }
-
-#include "utils.h"
+#include <boost/string>
 
 enum class CellType : uint8_t
 {
@@ -25,6 +26,7 @@ enum class CellType : uint8_t
     BLANK,
     DATE
 };
+
 struct CellPosition
 {
     std::size_t row;
@@ -160,6 +162,7 @@ class XlsCell
         auto startsWith = [] (std::string_view str, std::string_view prefix)
         { return str.substr (0, prefix.size ()) == prefix; };
 
+        auto CellStr = getStringView ();
         if (cell_->l == 0)
         {
             auto strVal = std::to_string (cell_->d);
@@ -169,15 +172,15 @@ class XlsCell
                 value_ = std::monostate{};
                 return;
             }
-            int format = cell_->xf;
+            auto format = cell_->xf;
             type_ = (isDateTime (format)) ? CellType::DATE : CellType::NUMBER;
             value_ = cell_->d;
             return;
         }
 
         // 处理布尔公式
-        auto strView = std::string_view (cell_->str);
-        if ((cell_->str != nullptr) && strView.substr (0, 4) == "bool")
+        auto BoolStringView = std::string_view ("bool");
+        if (startsWith (StringView, BoolStringView))
         {
             bool isValidBool
                 = (cell_->d == 0 && strView.substr (0, 5) == "false")

@@ -4,6 +4,7 @@
 #include "Exceptions.h"
 
 #include <algorithm>
+#include <cstring>
 #include <filesystem>
 #include <set>
 #include <vector>
@@ -174,6 +175,30 @@ parseAddress (const std::string &addr)
     }
 
     return std::make_pair (row, col);
+}
+
+std::wstring
+_transformString2Wstring (const std::string &s)
+{
+    setlocale (LC_CTYPE, "en_US.UTF-8");
+    const char *_Source = s.c_str ();
+    size_t len = std::strlen (_Source) + 1;
+    size_t converted = 0;
+    auto *wStr = new wchar_t[len];
+    mbstowcs_s (&converted, wStr, len, _Source, _TRUNCATE);
+    std::wstring result (wStr);
+    delete[] wStr;
+    return result;
+}
+
+fs::path
+_getPath (const std::string &p)
+{
+    std::wstring wdirname = _transformString2Wstring (p);
+
+    // 使用 std::filesystem 和 std::wstring 来创建目录
+    std::filesystem::path path (wdirname);
+    return path;
 }
 
 #endif
