@@ -1,7 +1,10 @@
 {
 	"InstallScripts" : 
 	[
-		"E:/Cpp/simpleTableReader/build/cmake_install.cmake"
+		"E:/Cpp/simpleTableReader/build/cmake_install.cmake",
+		"E:/Cpp/simpleTableReader/build/googletest/cmake_install.cmake",
+		"E:/Cpp/simpleTableReader/build/googletest/googlemock/cmake_install.cmake",
+		"E:/Cpp/simpleTableReader/build/googletest/googletest/cmake_install.cmake"
 	],
 	"Parallel" : false
 }
