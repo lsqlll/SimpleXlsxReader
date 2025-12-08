@@ -58,5 +58,70 @@
         "Ninja",
         "Unix Makefiles",
         "MinGW Makefiles"
-    ]
+    ],
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "vscode-neovim.ctrlKeysForNormalMode": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "o",
+        "r",
+        "t",
+        "u",
+        "v",
+        "w",
+        "x",
+        "y",
+        "z",
+        "/",
+        "]",
+        "right",
+        "left",
+        "up",
+        "down",
+        "backspace",
+        "delete"
+    ],
+    "vscode-neovim.ctrlKeysForInsertMode": [
+        "a",
+        "c",
+        "d",
+        "h",
+        "j",
+        "m",
+        "o",
+        "r",
+        "t",
+        "u",
+        "w"
+    ],
+    "vscode-neovim.neovimInitVimPaths.win32": "C:/users/lsqlll/AppData/local/nvim/lua/config/vscode.lua",
+    "vscode-neovim.neovimClean": true,
+    "vscode-neovim.compositeKeys": {
+        "jj": {
+            "command": "vscode-neovim.escape",
+            "args": []
+        },
+        "jk": {
+            "command": "vscode-neovim.lua",
+            "args": [
+                [
+                    "local code = require('vscode')",
+                    "code.action('vscode-neovim.escape')",
+                    "code.action('workbench.action.files.save')",
+                ],
+            ],
+        }
+    }
 }

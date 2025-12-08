@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -15,7 +17,6 @@ extern "C"
 {
 #include "xls.h"
 }
-#include <boost/string>
 
 enum class CellType : uint8_t
 {
@@ -29,9 +30,10 @@ enum class CellType : uint8_t
 
 struct CellPosition
 {
-    std::size_t row;
-    std::size_t col;
-    std::string addr; // Like A1
+  public:
+    std::optional<std::size_t> row;
+    std::optional<std::size_t> col;
+    std::optional<std::string> addr; // Like A1
 
     template <typename T>
     explicit CellPosition (T row, T col)
@@ -39,15 +41,7 @@ struct CellPosition
           col (static_cast<std::size_t> (col))
     {
         // 计算Excel地址 (A1, B2, etc.)
-        std::string column_str;
-
-        while (col >= 0)
-        {
-            column_str += char ('A' + (col % 26));
-            col = col / 26 - 1;
-        }
-
-        addr = column_str + std::to_string (row + 1);
+        calculateExcelAddress ();
     }
 
     template <typename T>
@@ -55,14 +49,7 @@ struct CellPosition
         : row (static_cast<std::size_t> (loc.first)),
           col (static_cast<std::size_t> (loc.second))
     {
-        // 计算Excel地址
-        std::string column_str;
-
-        while (col >= 0)
-        {
-            column_str += char ('A' + (col % 26));
-            col = col / 26 - 1;
-        }
+        calculateExcelAddress ();
     }
 
     explicit CellPosition (const std::string &addr) : addr (addr)
@@ -99,15 +86,38 @@ struct CellPosition
 
         col = col_num >= 0 ? static_cast<std::size_t> (col_num - 1) : 0;
     };
+
+    ~CellPosition () = default;
+
+  private:
+    void
+    calculateExcelAddress ()
+    {
+        std::string colPart;
+        std::size_t colNum = col.value ();
+
+        while (true)
+        {
+            colPart += static_cast<char> ('A' + (colNum % 26));
+            if (colNum < 26)
+            {
+                break;
+            }
+            colNum = colNum / 26 - 1;
+        }
+        std::reverse (colPart.begin (), colPart.end ());
+        this->addr = colPart + std::to_string (row.value () + 1);
+    }
 };
 
 class XlsCell
 {
   private:
-    xls::xlsCell *cell_;
+    xls::xlsCell *cell_{};
     CellPosition location_;
     std::optional<CellType> type_;
     std::variant<std::monostate, std::string, double, bool> value_;
+
     void
     inferValueFromStringCell (bool trimWs)
     {
@@ -150,19 +160,10 @@ class XlsCell
     void
     inferValueFromFormulaCell ()
     {
-        auto getStringView = [this] () -> std::optional<std::string_view>
-        {
-            if (!cell_->str)
-            {
-                return std::nullopt;
-            }
-            return std::string_view (cell_->str);
-        };
+        // 添加缺失的变量定义
+        auto rawStringView = getStringView (cell_->str);
+        constexpr std::string_view BoolStringView = "bool";
 
-        auto startsWith = [] (std::string_view str, std::string_view prefix)
-        { return str.substr (0, prefix.size ()) == prefix; };
-
-        auto CellStr = getStringView ();
         if (cell_->l == 0)
         {
             auto strVal = std::to_string (cell_->d);
@@ -179,12 +180,14 @@ class XlsCell
         }
 
         // 处理布尔公式
-        auto BoolStringView = std::string_view ("bool");
-        if (startsWith (StringView, BoolStringView))
+        if (rawStringView.has_value ()
+            && startsWith (rawStringView.value (), BoolStringView))
         {
             bool isValidBool
-                = (cell_->d == 0 && strView.substr (0, 5) == "false")
-                  || (cell_->d == 1 && strView.substr (0, 4) == "true");
+                = (cell_->d == 0
+                   && rawStringView.value ().substr (0, 5) == "false")
+                  || (cell_->d == 1
+                      && rawStringView.value ().substr (0, 4) == "true");
             if (isValidBool)
             {
                 type_ = CellType::BLANK;
@@ -195,12 +198,11 @@ class XlsCell
                 type_ = CellType::BOOL;
                 value_ = cell_->d != 0;
             }
-            return;
         }
 
         // 处理错误公式
-        if (cell_->str && strncmp ((char *)cell_->str, "error", 5) == 0
-            && cell_->d > 0)
+        if (rawStringView.has_value ()
+            && rawStringView->substr (0, 5) == "error")
         {
             type_ = CellType::BLANK;
             value_ = std::monostate{};
@@ -208,8 +210,7 @@ class XlsCell
         }
 
         // 处理字符串公式
-        std::string str = cell_->str ? std::string (cell_->str) : "";
-        if (isEmpty (str))
+        if (isEmpty (cell_->str))
         {
             type_ = CellType::BLANK;
             value_ = std::monostate{};
@@ -217,7 +218,7 @@ class XlsCell
         else
         {
             type_ = CellType::STRING;
-            value_ = str;
+            value_ = std::string (cell_->str);
         }
     };
     void
@@ -242,7 +243,8 @@ class XlsCell
             type_ = CellType::BLANK;
             value_ = std::monostate{};
         }
-        std::string strVal = cell_->str ? std::string (cell_->str) : "";
+        std::string strVal
+            = (cell_->str != nullptr) ? std::string (cell_->str) : "";
         std::string lowerStrVal = tolower (strVal);
 
         if (lowerStrVal == "false" || lowerStrVal == "true")
@@ -260,7 +262,7 @@ class XlsCell
     void
     inferBlankCell (bool trimWs)
     {
-        if (!cell_ || !cell_->str)
+        if (cell_->str == nullptr)
         {
             type_ = CellType::BLANK;
             value_ = std::monostate{};
@@ -283,41 +285,36 @@ class XlsCell
         type_ = CellType::UNKNOWN;
         value_ = std::monostate{};
     };
-    std::string
+
+    [[nodiscard]] std::string
     asBoolString () const
     {
         bool boolValue = false;
 
-        if (auto *b = std::get_if<bool> (&value_))
+        if (const auto *b = std::get_if<bool> (&value_))
         {
             boolValue = *b;
         }
-        else if (cell_)
-        {
-            boolValue = cell_->d != 0.0;
-        }
+        boolValue = cell_->d != 0.0;
 
         return boolValue ? "TRUE" : "FALSE";
     }
 
-    std::string
+    [[nodiscard]] std::string
     asNumberString () const
     {
         double value = 0.0;
 
-        if (auto *d = std::get_if<double> (&value_))
+        if (const auto *d = std::get_if<double> (&value_))
         {
             value = *d;
         }
-        else if (cell_)
-        {
-            value = cell_->d;
-        }
+        value = cell_->d;
 
         return formatDouble (value);
     }
 
-    std::string
+    [[nodiscard]] std::string
     asString (bool trimWs) const
     {
         std::string result;
@@ -379,24 +376,52 @@ class XlsCell
         return oss.str ();
     }
 
-  public:
-    explicit XlsCell (xls::xlsCell *cell)
-        : cell_ (cell), type_ (std::nullopt), location_ (CellPosition (0, 0)),
-          value_ (std::monostate{})
+    static std::shared_ptr<xls::xlsCell>
+    create (xls::xlsCell *cell)
     {
-        if (cell)
+        if (cell == nullptr)
         {
-            this->inferValue (false);
-            this->location_
-                = CellPosition (std::make_pair (cell_->row, cell_->col));
+            return nullptr;
         }
-        throw ExcelReader::NullCellException ("");
-    };
+        try
+        {
+            return std::make_shared<xls::xlsCell> (cell);
+        }
+        catch (...)
+        {
+            return nullptr;
+        }
+    }
 
-    int
+  public:
+    XlsCell (const XlsCell &) = default;
+    XlsCell (XlsCell &&) = default;
+    XlsCell &operator= (const XlsCell &) = default;
+    XlsCell &operator= (XlsCell &&) = default;
+    explicit XlsCell (xls::xlsCell *cell)
+        : location_ (CellPosition (std::nullopt, std::nullopt))
+    {
+        initialize (cell);
+    }
+
+    void
+    initialize (xls::xlsCell *cell)
+    {
+        if (cell == nullptr)
+        {
+            throw ExcelReader::NullCellException ("");
+        }
+
+        // 先设置 cell_ 指针
+        cell_ = cell;
+        location_ = CellPosition (cell->row, cell->col);
+        inferValue (false);
+    }
+
+    [[nodiscard]] int
     row () const
     {
-        return location_.row;
+        return location_.row.value ();
     }
 
     int
@@ -471,8 +496,7 @@ class XlsCell
     }
 
     std::string
-    asStdString (const bool trimWs,
-                 const std::vector<std::string> &stringTable) const
+    asStdString (const bool trimWs) const
     {
         // 处理未初始化的情况
         if (!type_.has_value ())
@@ -600,10 +624,4 @@ class XlsCell
             },
             value_);
     }
-};
-
-const auto xlsDeleter = [] (xls::xlsWorkBook *wb)
-{
-    if (wb)
-        xls::xls_close_WB (wb);
 };

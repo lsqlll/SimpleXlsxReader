@@ -6,15 +6,46 @@
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
+#include <optional>
 #include <set>
 #include <vector>
 
-namespace fs = std::filesystem;
+extern "C"
+{
+#include <xls.h>
+}
 
-const std::vector<std::string> formats = { "xls", "xlsx", "csv" };
+namespace fs = std::filesystem;
+inline std::optional<std::string_view>
+getStringView (const char *str)
+{
+    if (str == nullptr)
+    {
+        return std::nullopt;
+    }
+    return std::string_view (str);
+}
+
+inline std::optional<std::string_view>
+getStringView (const std::string &str)
+{
+    if (str.empty ())
+    {
+        return std::nullopt;
+    }
+    return std::string_view (str);
+}
+
+inline bool
+startsWith (std::string_view str, std::string_view prefix)
+{
+    return str.substr (0, prefix.size ()) == prefix;
+};
+
 inline bool
 isExcelFormat (const std::string &format)
 {
+    const std::vector<std::string> formats = { "xls", "xlsx", "csv" };
     return std::any_of (formats.begin (), formats.end (),
                         [format] (const std::string &fmt)
                         { return format == fmt; });
@@ -201,4 +232,9 @@ _getPath (const std::string &p)
     return path;
 }
 
+const auto xlsDeleter = [] (xls::xlsWorkBook *wb)
+{
+    if (wb)
+        xls::xls_close_WB (wb);
+};
 #endif
