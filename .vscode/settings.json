@@ -18,23 +18,45 @@
     "[cmake]": {
         "editor.defaultFormatter": "cheshirekow.cmake-format"
     },
-    "terminal.integrated.defaultProfile.windows": "MSYS2",
+    // ============ 终端配置 ============
+    "terminal.integrated.defaultProfile.windows": "MSYS2 MinGW64",
+    // 让 CMake Tools 也使用 MSYS2 终端
+    "cmake.configureEnvironment": {
+        "PATH": "E:/msys64/mingw64/bin;E:/msys64/usr/bin;${env:PATH}"
+    },
+    "cmake.buildEnvironment": {
+        "PATH": "E:/msys64/mingw64/bin;E:/msys64/usr/bin;${env:PATH}"
+    },
+    // ============ CMake 配置 ============
+    "cmake.generator": "Ninja",
     "cmake.configureSettings": {
         "CMAKE_C_COMPILER": "E:/msys64/mingw64/bin/gcc.exe",
         "CMAKE_CXX_COMPILER": "E:/msys64/mingw64/bin/g++.exe",
-        "CMAKE_MAKE_PROGRAM": "E:/msys64/usr/bin/make.exe"
+        "CMAKE_MAKE_PROGRAM": "E:/msys64/mingw64/bin/ninja.exe"
     },
-    "cmake.generator": "MinGW Makefiles",
-    // C++ 设置
+    // 可选：指定 CMake 路径
+    "cmake.cmakePath": "E:/msys64/mingw64/bin/cmake.exe",
+    // ============ C++ 配置 ============
     "C_Cpp.default.compilerPath": "E:/msys64/mingw64/bin/g++.exe",
     "C_Cpp.default.includePath": [
         "E:/msys64/mingw64/include",
-        "E:/msys64/mingw64/x86_64-w64-mingw32/include"
+        "E:/msys64/mingw64/x86_64-w64-mingw32/include",
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/third-party/libxls/include"
     ],
-    // 文件路径设置
+    // ============ 文件关联 ============
     "files.associations": {
         "*.h": "c"
     },
-    // 调试设置
-    "debug.terminal.clearBeforeReusing": false
+    // ============ 调试设置 ============
+    "debug.terminal.clearBeforeReusing": false,
+    // ============ CMake Tools 高级设置 ============
+    "cmake.configureOnOpen": false,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.installPrefix": "${workspaceFolder}/install",
+    "cmake.preferredGenerators": [
+        "Ninja",
+        "Unix Makefiles",
+        "MinGW Makefiles"
+    ]
 }

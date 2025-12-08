@@ -4,8 +4,8 @@ project(simpleTableReader)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# set(CMAKE_C_COMPILER "E:/msys64/mingw64/bin/gcc.exe")
-# set(CMAKE_CXX_COMPILER "E:/msys64/mingw64/bin/g++.exe")
+set(CMAKE_C_COMPILER "E:/msys64/mingw64/bin/gcc.exe")
+set(CMAKE_CXX_COMPILER "E:/msys64/mingw64/bin/g++.exe")
 
 # 设置第三方库路径
 set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third-party)

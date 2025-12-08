@@ -1,9 +1,17 @@
 # ninja log v7
-30	979	7867865155154797	googletest/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.obj	f64c3db7daced3ba
-43	2395	7867865155277753	CMakeFiles/CellFuncTest.dir/test/CellfuncTest.cpp.obj	b4fbbd78533366b6
-17	2606	7867865155022694	googletest/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.obj	9bd7e984afe0a78a
-4	6846	7867865154892223	googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.obj	c9224a9ae4fcb852
-6847	7038	7867865223316046	lib/libgtest.a	c7e6fb6b8023ede8
-7042	7159	7867865225273389	lib/libgtest_main.a	44e8a92090731a97
-7038	7177	7867865225233360	lib/libgmock.a	ccc245e05c783eaf
-7177	7457	7867865226618894	bin/CellFuncTest.exe	8b3067839c1b68a8
+15	2084	7868575485619573	googletest/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.obj	e19476cd75d7705c
+20	3458	7868575485669545	CMakeFiles/CellFuncTest.dir/test/CellfuncTest.cpp.obj	7bd709ed71f6a52c
+10	3691	7868575485579567	googletest/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.obj	2cb974e8e537782d
+5	7623	7868575485519595	googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.obj	402aaf85624cfe1d
+7625	7895	7868575561713769	lib/libgtest.a	545e22b2f26e9945
+7895	8027	7868575564422971	lib/libgmock.a	cc5bf3ac3a930b22
+7900	8027	7868575564472989	lib/libgtest_main.a	9b4d2100191fd5f8
+5	18	7868704151824340	clean	d15a4b91ef3cfb79
+35	1140	7868704377323151	googletest/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.obj	c54be05f39bc9d70
+49	2832	7868704377453148	CMakeFiles/CellFuncTest.dir/test/CellfuncTest.cpp.obj	38819f3f38788529
+21	3067	7868704377183149	googletest/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.obj	1dcd4653bce63187
+8	8353	7868704377053146	googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.obj	bf0706f2ccdd71e4
+8354	8592	7868704460513400	lib/libgtest.a	c7e6fb6b8023ede8
+8597	8721	7868704462943409	lib/libgtest_main.a	44e8a92090731a97
+8592	8755	7868704462893409	lib/libgmock.a	ccc245e05c783eaf
+8755	9105	7868704464513390	bin/CellFuncTest.exe	1f493f014b3ff6ea

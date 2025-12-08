@@ -1,5 +1,5 @@
-libdir=C:/Program Files (x86)/simpleTableReader/lib
-includedir=C:/Program Files (x86)/simpleTableReader/include
+libdir=e:/Cpp/simpleTableReader/install/lib
+includedir=e:/Cpp/simpleTableReader/install/include
 
 Name: gmock
 Description: GoogleMock (without main() function)
