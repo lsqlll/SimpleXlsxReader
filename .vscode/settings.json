@@ -1,0 +1,127 @@
+{
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+    "[c]": {
+        "editor.wordBasedSuggestions": "off",
+        "editor.semanticHighlighting.enabled": true,
+        "editor.stickyScroll.defaultModel": "foldingProviderModel",
+        "editor.suggest.insertMode": "replace",
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "[cpp]": {
+        "editor.wordBasedSuggestions": "off",
+        "editor.semanticHighlighting.enabled": true,
+        "editor.stickyScroll.defaultModel": "foldingProviderModel",
+        "editor.suggest.insertMode": "replace",
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "[cmake]": {
+        "editor.defaultFormatter": "cheshirekow.cmake-format"
+    },
+    // ============ 终端配置 ============
+    "terminal.integrated.defaultProfile.windows": "MSYS2 MinGW64",
+    // 让 CMake Tools 也使用 MSYS2 终端
+    "cmake.configureEnvironment": {
+        "PATH": "E:/msys64/mingw64/bin;E:/msys64/usr/bin;${env:PATH}"
+    },
+    "cmake.buildEnvironment": {
+        "PATH": "E:/msys64/mingw64/bin;E:/msys64/usr/bin;${env:PATH}"
+    },
+    // ============ CMake 配置 ============
+    "cmake.generator": "Ninja",
+    "cmake.configureSettings": {
+        "CMAKE_C_COMPILER": "E:/msys64/mingw64/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "E:/msys64/mingw64/bin/g++.exe",
+        "CMAKE_MAKE_PROGRAM": "E:/msys64/mingw64/bin/ninja.exe"
+    },
+    // 可选：指定 CMake 路径
+    "cmake.cmakePath": "E:/msys64/mingw64/bin/cmake.exe",
+    // ============ C++ 配置 ============
+    "C_Cpp.default.compilerPath": "E:/msys64/mingw64/bin/g++.exe",
+    "C_Cpp.default.includePath": [
+        "E:/msys64/mingw64/include",
+        "E:/msys64/mingw64/x86_64-w64-mingw32/include",
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/third-party/libxls/include"
+    ],
+    // ============ 文件关联 ============
+    "files.associations": {
+        "*.h": "c"
+    },
+    // ============ 调试设置 ============
+    "debug.terminal.clearBeforeReusing": false,
+    // ============ CMake Tools 高级设置 ============
+    "cmake.configureOnOpen": false,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.installPrefix": "${workspaceFolder}/install",
+    "cmake.preferredGenerators": [
+        "Ninja",
+        "Unix Makefiles",
+        "MinGW Makefiles"
+    ],
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "vscode-neovim.ctrlKeysForNormalMode": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "o",
+        "r",
+        "t",
+        "u",
+        "v",
+        "w",
+        "x",
+        "y",
+        "z",
+        "/",
+        "]",
+        "right",
+        "left",
+        "up",
+        "down",
+        "backspace",
+        "delete"
+    ],
+    "vscode-neovim.ctrlKeysForInsertMode": [
+        "a",
+        "c",
+        "d",
+        "h",
+        "j",
+        "m",
+        "o",
+        "r",
+        "t",
+        "u",
+        "w"
+    ],
+    "vscode-neovim.neovimInitVimPaths.win32": "C:/users/lsqlll/AppData/local/nvim/lua/config/vscode.lua",
+    "vscode-neovim.neovimClean": true,
+    "vscode-neovim.compositeKeys": {
+        "jj": {
+            "command": "vscode-neovim.escape",
+            "args": []
+        },
+        "jk": {
+            "command": "vscode-neovim.lua",
+            "args": [
+                [
+                    "local code = require('vscode')",
+                    "code.action('vscode-neovim.escape')",
+                    "code.action('workbench.action.files.save')",
+                ],
+            ],
+        }
+    }
+}
