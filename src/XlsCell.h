@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -10,14 +11,10 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <variant>
 
 #include "utils.h"
-
-extern "C"
-{
-#include "xls.h"
-}
 
 enum class CellType : uint8_t
 {
@@ -36,37 +33,28 @@ struct CellPosition
     std::optional<std::size_t> col;
     std::optional<std::string> addr; // Like A1
 
-    template <typename T> explicit CellPosition (T row, T col)
+    explicit CellPosition (std::nullopt_t /*unused*/)
+        : row (std::nullopt), col (std::nullopt), addr (std::nullopt) {};
+
+    explicit CellPosition (std::size_t rowVal, std::size_t colVal)
+        : row (rowVal), col (colVal), addr (std::nullopt)
     {
-        if constexpr (std::is_same_v<T, std::nullopt_t>)
-        {
-            row = std::nullopt;
-            col = std::nullopt;
-            addr = std::nullopt;
-        }
-        else
-        {
-            row = static_cast<std::size_t> (row);
-            col = static_cast<std::size_t> (col);
-            addr = std::nullopt;
-        }
         calculateExcelAddress ();
     }
 
-    template <typename T> explicit CellPosition (std::pair<T, T> loc)
+    template <typename T1, typename T2>
+    explicit CellPosition (T1 rowVal, T2 colVal)
     {
-        if constexpr (std::is_same_v<T, std::nullopt_t>)
-        {
-            row = std::nullopt;
-            col = std::nullopt;
-            addr = std::nullopt;
-        }
-        else
-        {
-            row = static_cast<std::size_t> (loc.first);
-            col = static_cast<std::size_t> (loc.second);
-            addr = std::nullopt;
-        }
+        row = convertToSizef (rowVal);
+        col = convertToSizef (colVal);
+        calculateExcelAddress ();
+    }
+
+    template <typename T1, typename T2>
+    explicit CellPosition (std::pair<T1, T2> loc)
+        : row (static_cast<std::size_t> (loc.first)),
+          col (static_cast<std::size_t> (loc.second)), addr (std::nullopt)
+    {
         calculateExcelAddress ();
     }
 
@@ -126,12 +114,28 @@ struct CellPosition
         std::reverse (colPart.begin (), colPart.end ());
         this->addr = colPart + std::to_string (row.value () + 1);
     }
+
+    template <typename T>
+    static std::optional<std::size_t>
+    convertToSizef (T value)
+    {
+        if constexpr (std::is_same_v<T, std::nullopt_t>)
+        {
+            return std::nullopt;
+        }
+        else if constexpr (std::is_integral_v<T>)
+        {
+            return static_cast<std::size_t> (value);
+        }
+
+        return std::nullopt;
+    }
 };
 
 class XlsCell
 {
   private:
-    xls::xlsCell *cell_{};
+    std::shared_ptr<xls::xlsCell> cell_;
     CellPosition location_;
     std::optional<CellType> type_;
     std::variant<std::monostate, std::string, double, bool> value_;
@@ -303,6 +307,52 @@ class XlsCell
         type_ = CellType::UNKNOWN;
         value_ = std::monostate{};
     };
+    void
+    inferValue (const bool trimWs) // 添加 const 修饰符
+    {
+        // 如果已经有类型，不需要重新推断（可以修改这个逻辑如果需要强制重新推断）
+        if (type_.has_value () && type_ != CellType::UNKNOWN
+            && cell_ != nullptr)
+        {
+            return;
+        }
+
+        // 使用 switch 分发到具体的处理函数
+        switch (cell_->id)
+        {
+        case XLS_RECORD_LABELSST:
+        case XLS_RECORD_LABEL:
+        case XLS_RECORD_RSTRING:
+            inferValueFromStringCell (trimWs);
+            break;
+
+        case XLS_RECORD_FORMULA:
+        case XLS_RECORD_FORMULA_ALT:
+            inferValueFromFormulaCell (); // 默认公式计算的值不需要改变，不需要我们做额外推理
+            break;
+
+        case XLS_RECORD_MULRK:
+        case XLS_RECORD_NUMBER:
+        case XLS_RECORD_RK:
+            inferValueFromNumberCell ();
+            break;
+
+        case XLS_RECORD_MULBLANK:
+        case XLS_RECORD_BLANK:
+            inferBlankCell (trimWs);
+            // 根据需要决定是否为逻辑上的空而非字面值上的空， 例如：
+            // " "逻辑上是空，但值不是字面值上的空
+            break;
+
+        case XLS_RECORD_BOOLERR:
+            inferValueFromBoolErrCell (trimWs);
+            break;
+
+        default:
+            inferUnknownCell ();
+            break;
+        }
+    }
 
     [[nodiscard]] std::string
     asBoolString () const
@@ -394,22 +444,6 @@ class XlsCell
         return oss.str ();
     }
 
-    static std::shared_ptr<xls::xlsCell>
-    create (xls::xlsCell *cell)
-    {
-        if (cell == nullptr)
-        {
-            return nullptr;
-        }
-        try
-        {
-            return std::make_shared<xls::xlsCell> (cell);
-        }
-        catch (...)
-        {
-            return nullptr;
-        }
-    }
     void
     initialize (xls::xlsCell *cell)
     {
@@ -418,10 +452,17 @@ class XlsCell
             throw ExcelReader::NullCellException ("");
         }
 
-        // 先设置 cell_ 指针
-        cell_ = cell;
-        location_ = CellPosition (cell->row, cell->col);
-        inferValue (false);
+        cell_ = std::shared_ptr<xls::xlsCell> (new xls::xlsCell (*cell));
+        try
+        {
+            location_ = CellPosition (cell->row, cell->col);
+            inferValue (false);
+        }
+        catch (...)
+        {
+            type_ = CellType::UNKNOWN;
+            value_ = std::monostate{};
+        }
     }
 
   public:
@@ -459,52 +500,6 @@ class XlsCell
 
     // 如果trim那么意味着推到字符串可能代码的值，例如" 123"代表123
     // 否则只推到字面值
-    void
-    inferValue (const bool trimWs) // 添加 const 修饰符
-    {
-        // 如果已经有类型，不需要重新推断（可以修改这个逻辑如果需要强制重新推断）
-        if (type_.has_value () && type_ != CellType::UNKNOWN
-            && cell_ != nullptr)
-        {
-            return;
-        }
-
-        // 使用 switch 分发到具体的处理函数
-        switch (cell_->id)
-        {
-        case XLS_RECORD_LABELSST:
-        case XLS_RECORD_LABEL:
-        case XLS_RECORD_RSTRING:
-            inferValueFromStringCell (trimWs);
-            break;
-
-        case XLS_RECORD_FORMULA:
-        case XLS_RECORD_FORMULA_ALT:
-            inferValueFromFormulaCell (); // 默认公式计算的值不需要改变，不需要我们做额外推理
-            break;
-
-        case XLS_RECORD_MULRK:
-        case XLS_RECORD_NUMBER:
-        case XLS_RECORD_RK:
-            inferValueFromNumberCell ();
-            break;
-
-        case XLS_RECORD_MULBLANK:
-        case XLS_RECORD_BLANK:
-            inferBlankCell (trimWs);
-            // 根据需要决定是否为逻辑上的空而非字面值上的空， 例如：
-            // " "逻辑上是空，但值不是字面值上的空
-            break;
-
-        case XLS_RECORD_BOOLERR:
-            inferValueFromBoolErrCell (trimWs);
-            break;
-
-        default:
-            inferUnknownCell ();
-            break;
-        }
-    }
 
     [[nodiscard]] std::string
     asStdString (const bool trimWs) const
@@ -601,8 +596,7 @@ class XlsCell
     }
 
     // 新增value()方法，返回实际存储的值
-    [[nodiscard]] const std::variant<std::monostate, std::string, double,
-                                     bool> &
+    [[nodiscard]] const auto &
     value () const
     {
         return value_;
