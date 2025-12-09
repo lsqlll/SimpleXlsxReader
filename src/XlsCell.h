@@ -452,7 +452,7 @@ class XlsCell
             throw ExcelReader::NullCellException ("");
         }
 
-        cell_ = std::shared_ptr<xls::xlsCell> (new xls::xlsCell (*cell));
+        cell_ = std::make_shared<xls::xlsCell> (*cell);
         try
         {
             location_ = CellPosition (cell->row, cell->col);
