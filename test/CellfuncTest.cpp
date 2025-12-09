@@ -317,17 +317,6 @@ createFormulaCell (int row, int col, double value,
     return cell;
 }
 
-void
-deleteCell (Cell *cell)
-{
-    if (cell != nullptr)
-    {
-
-        delete[] cell->str;
-        delete cell;
-    }
-}
-
 // 测试XlsCell的基本功能
 class XlsCellTest : public ::testing::Test
 {
@@ -1025,7 +1014,6 @@ TEST_F (XlsCellTest, ConstructorWithValidCell)
     EXPECT_EQ (xlsCellObj.type (), CellType::STRING);
 
     // Cleanup
-    deleteCell (cell);
 }
 
 TEST_F (XlsCellTest, ConstructorWithNullCell)
@@ -1051,7 +1039,6 @@ TEST_F (XlsCellTest, StringCellHandling)
     EXPECT_EQ (xlsCellObj.valueType (), "string");
 
     // Cleanup
-    deleteCell (cell);
 }
 
 // 测试带空格的字符串单元格
@@ -1066,7 +1053,6 @@ TEST_F (XlsCellTest, StringCellWithWhitespace)
                "  Test Content  "); // trim=false
 
     // Cleanup
-    deleteCell (cell);
 }
 
 // 测试数字单元格
@@ -1084,7 +1070,6 @@ TEST_F (XlsCellTest, NumberCellHandling)
     EXPECT_EQ (xlsCellObj.valueType (), "double");
 
     // Cleanup
-    deleteCell (cell);
 }
 
 // 测试整数单元格
@@ -1098,7 +1083,6 @@ TEST_F (XlsCellTest, IntegerCellHandling)
     EXPECT_EQ (xlsCellObj.asStdString (true), "42");
 
     // Cleanup
-    deleteCell (cell);
 }
 
 // 测试布尔单元格
@@ -1115,9 +1099,6 @@ TEST_F (XlsCellTest, BoolCellHandling)
     EXPECT_DOUBLE_EQ (trueXlsCell.asDouble (), 1.0);
     EXPECT_EQ (trueXlsCell.valueType (), "bool");
 
-    // Cleanup
-    deleteCell (trueCell);
-
     // Given: 一个FALSE布尔单元格
     Cell *falseCell = createTestBoolCell (0, 0, false);
     XlsCell falseXlsCell (falseCell);
@@ -1127,9 +1108,6 @@ TEST_F (XlsCellTest, BoolCellHandling)
     EXPECT_EQ (falseXlsCell.asStdString (false), "FALSE");
     EXPECT_FALSE (falseXlsCell.asLogical ());
     EXPECT_DOUBLE_EQ (falseXlsCell.asDouble (), 0.0);
-
-    // Cleanup
-    deleteCell (falseCell);
 }
 
 // 测试空白单元格
@@ -1147,7 +1125,6 @@ TEST_F (XlsCellTest, BlankCellHandling)
     EXPECT_EQ (xlsCellObj.valueType (), "monostate");
 
     // Cleanup
-    deleteCell (cell);
 }
 
 // 测试公式单元格
@@ -1165,7 +1142,6 @@ TEST_F (XlsCellTest, FormulaCellHandling)
     EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), 100.0);
 
     // Cleanup
-    deleteCell (cell);
 }
 
 // 测试CellPosition构造函数
@@ -1270,7 +1246,6 @@ TEST_F (XlsCellTest, ValueMethodTest)
         const auto &value = xlsCellObj.value ();
         EXPECT_TRUE (std::holds_alternative<std::string> (value));
         EXPECT_EQ (std::get<std::string> (value), "Test");
-        deleteCell (cell);
     }
 
     // 测试数字单元格的value()
@@ -1280,7 +1255,6 @@ TEST_F (XlsCellTest, ValueMethodTest)
         const auto &value = xlsCellObj.value ();
         EXPECT_TRUE (std::holds_alternative<double> (value));
         EXPECT_DOUBLE_EQ (std::get<double> (value), 123.45);
-        deleteCell (cell);
     }
 
     // 测试布尔单元格的value()
@@ -1290,7 +1264,6 @@ TEST_F (XlsCellTest, ValueMethodTest)
         const auto &value = xlsCellObj.value ();
         EXPECT_TRUE (std::holds_alternative<bool> (value));
         EXPECT_TRUE (std::get<bool> (value));
-        deleteCell (cell);
     }
 
     // 测试空白单元格的value()
@@ -1299,7 +1272,6 @@ TEST_F (XlsCellTest, ValueMethodTest)
         XlsCell xlsCellObj (cell);
         const auto &value = xlsCellObj.value ();
         EXPECT_TRUE (std::holds_alternative<std::monostate> (value));
-        deleteCell (cell);
     }
 }
 
@@ -1311,28 +1283,24 @@ TEST_F (XlsCellTest, ValueTypeMethodTest)
         Cell *cell = createTestStringCell (0, 0, "Test");
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.valueType (), "string");
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestNumberCell (0, 0, 123.45);
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.valueType (), "double");
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBoolCell (0, 0, true);
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.valueType (), "bool");
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBlankCell (0, 0);
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.valueType (), "monostate");
-        deleteCell (cell);
     }
 }
 
@@ -1349,7 +1317,6 @@ TEST_F (XlsCellTest, CopyAndMoveOperations)
         EXPECT_EQ (original.col (), copy.col ());
         EXPECT_EQ (original.type (), copy.type ());
         EXPECT_EQ (original.asStdString (false), copy.asStdString (false));
-        deleteCell (cell);
     }
 
     // 测试移动构造函数
@@ -1362,7 +1329,6 @@ TEST_F (XlsCellTest, CopyAndMoveOperations)
         EXPECT_EQ (moved.col (), 0);
         EXPECT_EQ (moved.type (), CellType::NUMBER);
         EXPECT_EQ (moved.asStdString (false), "42");
-        deleteCell (cell);
     }
 
     // 测试复制赋值运算符
@@ -1379,9 +1345,6 @@ TEST_F (XlsCellTest, CopyAndMoveOperations)
         EXPECT_EQ (cellB.col (), 0);
         EXPECT_EQ (cellB.type (), CellType::STRING);
         EXPECT_EQ (cellB.asStdString (false), "First");
-
-        deleteCell (cell1);
-        deleteCell (cell2);
     }
 
     // 测试移动赋值运算符
@@ -1398,9 +1361,6 @@ TEST_F (XlsCellTest, CopyAndMoveOperations)
         EXPECT_EQ (cellB.col (), 0);
         EXPECT_EQ (cellB.type (), CellType::BOOL);
         EXPECT_EQ (cellB.asStdString (false), "TRUE");
-
-        deleteCell (cell1);
-        deleteCell (cell2);
     }
 }
 
@@ -1413,7 +1373,6 @@ TEST_F (XlsCellTest, EdgeCases)
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.type (), CellType::BLANK);
         EXPECT_EQ (xlsCellObj.asStdString (false), "");
-        deleteCell (cell);
     }
 
     // 测试只包含空格的字符串单元格
@@ -1422,7 +1381,6 @@ TEST_F (XlsCellTest, EdgeCases)
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.type (), CellType::BLANK);
         EXPECT_EQ (xlsCellObj.asStdString (true), "");
-        deleteCell (cell);
     }
 
     // 测试零值数字单元格
@@ -1433,7 +1391,6 @@ TEST_F (XlsCellTest, EdgeCases)
         EXPECT_EQ (xlsCellObj.asStdString (false), "0");
         EXPECT_FALSE (xlsCellObj.asLogical ());
         EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), 0.0);
-        deleteCell (cell);
     }
 
     // 测试负值数字单元格
@@ -1444,7 +1401,6 @@ TEST_F (XlsCellTest, EdgeCases)
         EXPECT_EQ (xlsCellObj.asStdString (false), "-123.456");
         EXPECT_TRUE (xlsCellObj.asLogical ()); // 非零值应为true
         EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), -123.456);
-        deleteCell (cell);
     }
 
     // 测试非常大的数字
@@ -1455,7 +1411,6 @@ TEST_F (XlsCellTest, EdgeCases)
         // 检查字符串表示是否正确
         std::string str = xlsCellObj.asStdString (false);
         EXPECT_TRUE (str.find ("1.23456789") != std::string::npos);
-        deleteCell (cell);
     }
 
     // 测试非常小的数字
@@ -1465,7 +1420,6 @@ TEST_F (XlsCellTest, EdgeCases)
         EXPECT_EQ (xlsCellObj.type (), CellType::NUMBER);
         std::string str = xlsCellObj.asStdString (false);
         EXPECT_TRUE (str.find ("1.23456789") != std::string::npos);
-        deleteCell (cell);
     }
 }
 
@@ -1572,7 +1526,6 @@ TEST_F (XlsCellTest, TypeInferenceTest)
         XlsCell xlsCellObj (cell);
         // 注意：根据XlsCell.h的实现，"123"会被推断为STRING类型，而不是NUMBER
         EXPECT_EQ (xlsCellObj.type (), CellType::STRING);
-        deleteCell (cell);
     }
 
     // 测试看起来像数字的字符串
@@ -1580,7 +1533,6 @@ TEST_F (XlsCellTest, TypeInferenceTest)
         Cell *cell = createTestStringCell (0, 0, "123.456");
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.type (), CellType::STRING);
-        deleteCell (cell);
     }
 
     // 测试看起来像布尔的字符串
@@ -1588,7 +1540,6 @@ TEST_F (XlsCellTest, TypeInferenceTest)
         Cell *cell = createTestStringCell (0, 0, "true");
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.type (), CellType::STRING);
-        deleteCell (cell);
     }
 
     // 测试布尔单元格的类型推断
@@ -1596,7 +1547,6 @@ TEST_F (XlsCellTest, TypeInferenceTest)
         Cell *cell = createTestBoolCell (0, 0, true);
         XlsCell xlsCellObj (cell);
         EXPECT_EQ (xlsCellObj.type (), CellType::BOOL);
-        deleteCell (cell);
     }
 }
 
@@ -1608,49 +1558,42 @@ TEST_F (XlsCellTest, AsLogicalTest)
         Cell *cell = createTestNumberCell (0, 0, 0.0);
         XlsCell xlsCellObj (cell);
         EXPECT_FALSE (xlsCellObj.asLogical ());
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestNumberCell (0, 0, 1.0);
         XlsCell xlsCellObj (cell);
         EXPECT_TRUE (xlsCellObj.asLogical ());
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestNumberCell (0, 0, -1.0);
         XlsCell xlsCellObj (cell);
         EXPECT_TRUE (xlsCellObj.asLogical ());
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBoolCell (0, 0, false);
         XlsCell xlsCellObj (cell);
         EXPECT_FALSE (xlsCellObj.asLogical ());
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBoolCell (0, 0, true);
         XlsCell xlsCellObj (cell);
         EXPECT_TRUE (xlsCellObj.asLogical ());
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestStringCell (0, 0, "anything");
         XlsCell xlsCellObj (cell);
         EXPECT_FALSE (xlsCellObj.asLogical ());
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBlankCell (0, 0);
         XlsCell xlsCellObj (cell);
         EXPECT_FALSE (xlsCellObj.asLogical ());
-        deleteCell (cell);
     }
 }
 
@@ -1662,35 +1605,30 @@ TEST_F (XlsCellTest, AsDoubleTest)
         Cell *cell = createTestNumberCell (0, 0, 123.456);
         XlsCell xlsCellObj (cell);
         EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), 123.456);
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBoolCell (0, 0, true);
         XlsCell xlsCellObj (cell);
         EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), 1.0);
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBoolCell (0, 0, false);
         XlsCell xlsCellObj (cell);
         EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), 0.0);
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestStringCell (0, 0, "hello");
         XlsCell xlsCellObj (cell);
         EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), 0.0);
-        deleteCell (cell);
     }
 
     {
         Cell *cell = createTestBlankCell (0, 0);
         XlsCell xlsCellObj (cell);
         EXPECT_DOUBLE_EQ (xlsCellObj.asDouble (), 0.0);
-        deleteCell (cell);
     }
 }
 
