@@ -12,11 +12,8 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 
-# CPack
-_CPack_Packages/
-CPack*.cmake
-CPackConfig.cmake
-
+*.ninja
+build.ninja
 
 # 临时文件
 *~
