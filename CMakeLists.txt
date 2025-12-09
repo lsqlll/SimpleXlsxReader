@@ -16,6 +16,9 @@ set(BOOST_ROOT ${BOOST_DIR})
 set(BOOST_INCLUDEDIR ${BOOST_DIR}/include)
 
 add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
+set_target_properties(gtest gmock gtest_main PROPERTIES
+    EXCLUDE_FROM_ALL TRUE
+    EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 
 # 查找 libxls
 set(LIBXLS_INCLUDE_DIR ${THIRD_PARTY_DIR}/libxls/include)
@@ -29,7 +32,7 @@ find_library(LIBXLS_LIBRARY
 
 if(LIBXLS_LIBRARY)
     message(STATUS "Found libxls: ${LIBXLS_LIBRARY}")
-    
+
     add_library(libxls::libxls STATIC IMPORTED)
     set_target_properties(libxls::libxls PROPERTIES
         IMPORTED_LOCATION ${LIBXLS_LIBRARY}
@@ -41,6 +44,7 @@ endif()
 
 # 检查 Boost 目录结构
 message(STATUS "Checking Boost directory: ${BOOST_DIR}")
+
 if(EXISTS ${BOOST_DIR}/include/boost)
     message(STATUS "Boost headers found")
 else()
@@ -51,7 +55,6 @@ add_executable(CellFuncTest test/CellfuncTest.cpp src/Exceptions.h)
 
 # 链接库
 target_link_libraries(CellFuncTest PRIVATE
-    libxls::libxls
     gtest
     gmock
     gtest_main
@@ -63,10 +66,39 @@ target_include_directories(CellFuncTest PRIVATE
     ${LIBXLS_INCLUDE_DIR}
     ${GTEST_DIR}/googletest/include
     ${GTEST_DIR}/googlemock/include
-    ${BOOST_INCLUDE_DIRS}
 )
 
 # 设置输出目录
 set_target_properties(CellFuncTest PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
+
+# testStringViewUtils.cpp
+add_executable(testStringViewUtils test/testStringViewUtils.cpp src/Exceptions.h)
+
+# 链接库
+target_link_libraries(testStringViewUtils PRIVATE
+    gtest
+    gmock
+    gtest_main
+)
+
+# 包含目录
+target_include_directories(testStringViewUtils PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${GTEST_DIR}/googletest/include
+    ${GTEST_DIR}/googlemock/include
+)
+
+# 设置输出目录
+set_target_properties(testStringViewUtils PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+add_custom_target(build_gtest
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target gtest gmock gtest_main
+    COMMENT "Building Google Test libraries"
+)
+
+add_dependencies(CellFuncTest build_gtest)
+add_dependencies(testStringViewUtils build_gtest)
