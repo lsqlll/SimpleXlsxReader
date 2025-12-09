@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
@@ -35,20 +36,37 @@ struct CellPosition
     std::optional<std::size_t> col;
     std::optional<std::string> addr; // Like A1
 
-    template <typename T>
-    explicit CellPosition (T row, T col)
-        : row (static_cast<std::size_t> (row)),
-          col (static_cast<std::size_t> (col))
+    template <typename T> explicit CellPosition (T row, T col)
     {
-        // 计算Excel地址 (A1, B2, etc.)
+        if constexpr (std::is_same_v<T, std::nullopt_t>)
+        {
+            row = std::nullopt;
+            col = std::nullopt;
+            addr = std::nullopt;
+        }
+        else
+        {
+            row = static_cast<std::size_t> (row);
+            col = static_cast<std::size_t> (col);
+            addr = std::nullopt;
+        }
         calculateExcelAddress ();
     }
 
-    template <typename T>
-    explicit CellPosition (std::pair<T, T> loc)
-        : row (static_cast<std::size_t> (loc.first)),
-          col (static_cast<std::size_t> (loc.second))
+    template <typename T> explicit CellPosition (std::pair<T, T> loc)
     {
+        if constexpr (std::is_same_v<T, std::nullopt_t>)
+        {
+            row = std::nullopt;
+            col = std::nullopt;
+            addr = std::nullopt;
+        }
+        else
+        {
+            row = static_cast<std::size_t> (loc.first);
+            col = static_cast<std::size_t> (loc.second);
+            addr = std::nullopt;
+        }
         calculateExcelAddress ();
     }
 
@@ -319,11 +337,11 @@ class XlsCell
     {
         std::string result;
 
-        if (auto *s = std::get_if<std::string> (&value_))
+        if (const auto *s = std::get_if<std::string> (&value_))
         {
             result = *s;
         }
-        else if (cell_ && cell_->str)
+        else if (cell_->str != nullptr)
         {
             result = std::string (cell_->str);
         }
@@ -331,8 +349,8 @@ class XlsCell
         return trimWs ? trim (result) : result;
     }
 
-    std::string
-    formatDouble (double value) const
+    [[nodiscard]] static std::string
+    formatDouble (double value)
     {
         std::ostringstream oss;
 
@@ -392,18 +410,6 @@ class XlsCell
             return nullptr;
         }
     }
-
-  public:
-    XlsCell (const XlsCell &) = default;
-    XlsCell (XlsCell &&) = default;
-    XlsCell &operator= (const XlsCell &) = default;
-    XlsCell &operator= (XlsCell &&) = default;
-    explicit XlsCell (xls::xlsCell *cell)
-        : location_ (CellPosition (std::nullopt, std::nullopt))
-    {
-        initialize (cell);
-    }
-
     void
     initialize (xls::xlsCell *cell)
     {
@@ -418,16 +424,27 @@ class XlsCell
         inferValue (false);
     }
 
+  public:
+    XlsCell (const XlsCell &) = default;
+    XlsCell (XlsCell &&) = default;
+    XlsCell &operator= (const XlsCell &) = default;
+    XlsCell &operator= (XlsCell &&) = default;
+    explicit XlsCell (xls::xlsCell *cell)
+        : location_ (CellPosition (std::nullopt, std::nullopt))
+    {
+        initialize (cell);
+    }
+
     [[nodiscard]] int
     row () const
     {
         return location_.row.value ();
     }
 
-    int
+    [[nodiscard]] int
     col () const
     {
-        return location_.col;
+        return location_.col.value ();
     }
 
     CellType
@@ -449,12 +466,6 @@ class XlsCell
         if (type_.has_value () && type_ != CellType::UNKNOWN
             && cell_ != nullptr)
         {
-            return;
-        }
-
-        if (!cell_)
-        {
-            inferBlankCell (trimWs);
             return;
         }
 
@@ -495,7 +506,7 @@ class XlsCell
         }
     }
 
-    std::string
+    [[nodiscard]] std::string
     asStdString (const bool trimWs) const
     {
         // 处理未初始化的情况
@@ -527,7 +538,7 @@ class XlsCell
         }
     }
 
-    bool
+    [[nodiscard]] bool
     asLogical () const
     {
         switch (type_.value ())
@@ -540,14 +551,14 @@ class XlsCell
             return false;
 
         case CellType::BOOL:
-            if (auto *b = std::get_if<bool> (&value_))
+            if (const auto *b = std::get_if<bool> (&value_))
             {
                 return *b;
             }
             return cell_->d != 0;
 
         case CellType::NUMBER:
-            if (auto *d = std::get_if<double> (&value_))
+            if (const auto *d = std::get_if<double> (&value_))
             {
                 return *d != 0.0;
             }
@@ -558,7 +569,7 @@ class XlsCell
         }
     }
 
-    double
+    [[nodiscard]] double
     asDouble () const
     {
         switch (type_.value ())
@@ -570,7 +581,7 @@ class XlsCell
             return 0.0;
 
         case CellType::BOOL:
-            if (auto *b = std::get_if<bool> (&value_))
+            if (const auto *b = std::get_if<bool> (&value_))
             {
                 return *b ? 1.0 : 0.0;
             }
@@ -578,7 +589,7 @@ class XlsCell
 
         case CellType::DATE:
         case CellType::NUMBER:
-            if (auto *d = std::get_if<double> (&value_))
+            if (const auto *d = std::get_if<double> (&value_))
             {
                 return *d;
             }
@@ -590,14 +601,15 @@ class XlsCell
     }
 
     // 新增value()方法，返回实际存储的值
-    const std::variant<std::monostate, std::string, double, bool> &
+    [[nodiscard]] const std::variant<std::monostate, std::string, double,
+                                     bool> &
     value () const
     {
         return value_;
     }
 
     // 便捷方法：获取实际值的类型
-    std::string
+    [[nodiscard]] std::string
     valueType () const
     {
         return std::visit (
