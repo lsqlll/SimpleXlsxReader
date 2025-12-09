@@ -17,11 +17,6 @@ _CPack_Packages/
 CPack*.cmake
 CPackConfig.cmake
 
-# IDE 和编辑器
-.vscode/
-.vs/
-*.xcodeproj
-*.xcworkspace
 
 # 临时文件
 *~
