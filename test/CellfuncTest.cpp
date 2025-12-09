@@ -143,8 +143,8 @@ isEmpty (const std::string &raw_value, bool trims = false)
 inline std::string
 tolower (const std::string &raw_value)
 {
-    std::string tmp{};
-    std::transform (raw_value.begin (), raw_value.end (), tmp.begin (),
+    std::string tmp = raw_value;
+    std::transform (tmp.begin (), tmp.end (), tmp.begin (),
                     [] (char chr) { return std::tolower (chr); });
     return tmp;
 }
