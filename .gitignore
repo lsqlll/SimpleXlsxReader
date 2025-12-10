@@ -1,7 +1,5 @@
 # 构建目录
-build/.cmake/
-build/CMakeFiles/
-build/bin/
+build/
 
 # CMake 生成文件
 CMakeCache.txt
