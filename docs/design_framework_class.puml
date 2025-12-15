@@ -1,0 +1,304 @@
+@startuml TableReader_Class_Diagram
+
+title C++ Table Reader Framework - Class Diagram
+
+skinparam class {
+    BackgroundColor<<interface>> LightBlue
+    BackgroundColor<<factory>> LightGreen
+    BackgroundColor<<strategy>> LightYellow
+    BackgroundColor<<concrete>> White
+    BorderColor Black
+    ArrowColor Black
+}
+
+package "Cell Layer" {
+    interface ICell <<interface>> {
+        + {abstract} ~ICell()
+        + {abstract} getType(): CellType
+        + {abstract} getRow(): size_t
+        + {abstract} getCol(): size_t
+        + {abstract} getPosition(): CellPosition
+        + {abstract} asString(trimWhitespace: bool = false): string
+        + {abstract} asDouble(): double
+        + {abstract} asBool(): bool
+        + {abstract} isBlank(): bool
+        + {abstract} isNumber(): bool
+        + {abstract} isString(): bool
+        + {abstract} isBool(): bool
+        + {abstract} isDate(): bool
+    }
+    
+    class XlsCell <<concrete>> {
+        - cell_: shared_ptr<xlsCell>
+        - location_: CellPosition
+        - type_: optional<CellType>
+        - value_: variant<monostate, string, double, bool>
+        - inferValue(trimWs: bool): void
+        + XlsCell(cell: xlsCell*)
+        + getType(): CellType
+        + getRow(): size_t
+        + getCol(): size_t
+        + getPosition(): CellPosition
+        + asString(trimWhitespace: bool): string
+        + asDouble(): double
+        + asBool(): bool
+        + isBlank(): bool
+        + isNumber(): bool
+        + isString(): bool
+        + isBool(): bool
+        + isDate(): bool
+    }
+    
+    class XlsxCell <<concrete>> {
+        + XlsxCell()
+        + getType(): CellType
+        + getRow(): size_t
+        + getCol(): size_t
+        + getPosition(): CellPosition
+        + asString(trimWhitespace: bool): string
+        + asDouble(): double
+        + asBool(): bool
+        + isBlank(): bool
+        + isNumber(): bool
+        + isString(): bool
+        + isBool(): bool
+        + isDate(): bool
+    }
+    
+    ICell <|.. XlsCell
+    ICell <|.. XlsxCell
+}
+
+package "Worksheet Layer" {
+    interface IWorksheet <<interface>> {
+        + {abstract} ~IWorksheet()
+        + {abstract} getName(): string
+        + {abstract} getIndex(): size_t
+        + {abstract} getDimensions(): pair<size_t, size_t>
+        + {abstract} getMaxRow(): size_t
+        + {abstract} getMaxColumn(): size_t
+        + {abstract} getCell(row: size_t, col: size_t): shared_ptr<ICell>
+        + {abstract} getCell(address: string): shared_ptr<ICell>
+        + {abstract} getCell(position: CellPosition): shared_ptr<ICell>
+        + {abstract} getRow(rowIndex: size_t): vector<shared_ptr<ICell>>
+        + {abstract} getColumn(colIndex: size_t): vector<shared_ptr<ICell>>
+        + {abstract} isLoaded(): bool
+        + {abstract} ensureLoaded(): void
+    }
+    
+    class XlsWorksheet <<concrete>> {
+        - index_: size_t
+        - name_: string
+        - sheet_: xlsWorkSheet*
+        - isLoaded_: bool
+        - maxRow_: size_t
+        - maxCol_: size_t
+        + XlsWorksheet(index: size_t, name: string, sheet: xlsWorkSheet*)
+        + ~XlsWorksheet()
+        + getName(): string
+        + getIndex(): size_t
+        + getDimensions(): pair<size_t, size_t>
+        + getMaxRow(): size_t
+        + getMaxColumn(): size_t
+        + getCell(row: size_t, col: size_t): shared_ptr<ICell>
+        + getCell(address: string): shared_ptr<ICell>
+        + getCell(position: CellPosition): shared_ptr<ICell>
+        + getRow(rowIndex: size_t): vector<shared_ptr<ICell>>
+        + getColumn(colIndex: size_t): vector<shared_ptr<ICell>>
+        + isLoaded(): bool
+        + ensureLoaded(): void
+    }
+    
+    class XlsxWorksheet <<concrete>> {
+        - index_: size_t
+        - name_: string
+        - isLoaded_: bool
+        + XlsxWorksheet(index: size_t, name: string)
+        + ~XlsxWorksheet()
+        + getName(): string
+        + getIndex(): size_t
+        + getDimensions(): pair<size_t, size_t>
+        + getMaxRow(): size_t
+        + getMaxColumn(): size_t
+        + getCell(row: size_t, col: size_t): shared_ptr<ICell>
+        + getCell(address: string): shared_ptr<ICell>
+        + getCell(position: CellPosition): shared_ptr<ICell>
+        + getRow(rowIndex: size_t): vector<shared_ptr<ICell>>
+        + getColumn(colIndex: size_t): vector<shared_ptr<ICell>>
+        + isLoaded(): bool
+        + ensureLoaded(): void
+    }
+    
+    IWorksheet <|.. XlsWorksheet
+    IWorksheet <|.. XlsxWorksheet
+    
+    IWorksheet ..> ICell : creates
+}
+
+package "Workbook Layer" {
+    interface IWorkbook <<interface>> {
+        + {abstract} ~IWorkbook()
+        + {abstract} isOpen(): bool
+        + {abstract} getSheetCount(): size_t
+        + {abstract} getSheetNames(): vector<string>
+        + {abstract} getSheet(index: size_t): shared_ptr<IWorksheet>
+        + {abstract} getSheet(name: string): shared_ptr<IWorksheet>
+        + {abstract} getActiveSheet(): shared_ptr<IWorksheet>
+        + {abstract} getFilePath(): filesystem::path
+    }
+    
+    class XlsWorkbook <<concrete>> {
+        - filePath_: filesystem::path
+        - workbook_: unique_ptr<xlsWorkBook, decltype(&xls_close_WB)>
+        - sheets_: vector<shared_ptr<XlsWorksheet>>
+        - isOpen_: bool
+        - loadSheetMetadata(): void
+        + XlsWorkbook(path: filesystem::path)
+        + ~XlsWorkbook()
+        + isOpen(): bool
+        + getSheetCount(): size_t
+        + getSheetNames(): vector<string>
+        + getSheet(index: size_t): shared_ptr<IWorksheet>
+        + getSheet(name: string): shared_ptr<IWorksheet>
+        + getActiveSheet(): shared_ptr<IWorksheet>
+        + getFilePath(): filesystem::path
+    }
+    
+    class XlsxWorkbook <<concrete>> {
+        - filePath_: filesystem::path
+        - sheets_: vector<shared_ptr<XlsxWorksheet>>
+        - isOpen_: bool
+        - loadSheetMetadata(): void
+        + XlsxWorkbook(path: filesystem::path)
+        + ~XlsxWorkbook()
+        + isOpen(): bool
+        + getSheetCount(): size_t
+        + getSheetNames(): vector<string>
+        + getSheet(index: size_t): shared_ptr<IWorksheet>
+        + getSheet(name: string): shared_ptr<IWorksheet>
+        + getActiveSheet(): shared_ptr<IWorksheet>
+        + getFilePath(): filesystem::path
+    }
+    
+    IWorkbook <|.. XlsWorkbook
+    IWorkbook <|.. XlsxWorkbook
+    
+    IWorkbook o-- IWorksheet : contains
+    XlsWorkbook o-- XlsWorksheet : owns
+    XlsxWorkbook o-- XlsxWorksheet : owns
+}
+
+package "Strategy Pattern" {
+    interface IReaderStrategy <<strategy>> {
+        + {abstract} ~IReaderStrategy()
+        + {abstract} openWorkbook(path: filesystem::path): unique_ptr<IWorkbook>
+        + {abstract} canHandle(path: filesystem::path): bool
+        + {abstract} getFormatName(): string
+    }
+    
+    class XlsReaderStrategy <<strategy>> {
+        + openWorkbook(path: filesystem::path): unique_ptr<IWorkbook>
+        + canHandle(path: filesystem::path): bool
+        + getFormatName(): string
+    }
+    
+    class XlsxReaderStrategy <<strategy>> {
+        + openWorkbook(path: filesystem::path): unique_ptr<IWorkbook>
+        + canHandle(path: filesystem::path): bool
+        + getFormatName(): string
+    }
+    
+    class CsvReaderStrategy <<strategy>> {
+        + openWorkbook(path: filesystem::path): unique_ptr<IWorkbook>
+        + canHandle(path: filesystem::path): bool
+        + getFormatName(): string
+    }
+    
+    IReaderStrategy <|.. XlsReaderStrategy
+    IReaderStrategy <|.. XlsxReaderStrategy
+    IReaderStrategy <|.. CsvReaderStrategy
+    
+    IReaderStrategy ..> IWorkbook : creates
+    XlsReaderStrategy ..> XlsWorkbook : creates
+    XlsxReaderStrategy ..> XlsxWorkbook : creates
+}
+
+package "Factory Pattern" {
+    class ReaderStrategyFactory <<factory>> {
+        - {static} instance_: ReaderStrategyFactory
+        - strategies_: vector<unique_ptr<IReaderStrategy>>
+        - ReaderStrategyFactory()
+        + {static} getInstance(): ReaderStrategyFactory&
+        + createStrategy(path: filesystem::path): unique_ptr<IReaderStrategy>
+        + registerStrategy(strategy: unique_ptr<IReaderStrategy>): void
+        + getSupportedFormats(): vector<string>
+    }
+    
+    class WorkbookFactory <<factory>> {
+        + {static} open(path: filesystem::path): unique_ptr<IWorkbook>
+        + {static} openWithStrategy(path: filesystem::path, strategy: unique_ptr<IReaderStrategy>): unique_ptr<IWorkbook>
+    }
+    
+    ReaderStrategyFactory o-- IReaderStrategy : manages
+    WorkbookFactory ..> ReaderStrategyFactory : uses
+    WorkbookFactory ..> IReaderStrategy : uses
+    WorkbookFactory ..> IWorkbook : creates
+}
+
+package "Supporting Types" {
+    enum CellType {
+        STRING
+        NUMBER
+        BOOL
+        UNKNOWN
+        BLANK
+        DATE
+    }
+    
+    class CellPosition {
+        + row: optional<size_t>
+        + col: optional<size_t>
+        + addr: optional<string>
+        + CellPosition(nullopt_t)
+        + CellPosition(row: size_t, col: size_t)
+        + CellPosition(addr: string)
+        + getRow(): size_t
+        + getCol(): size_t
+        + getAddr(): string
+    }
+    
+    ICell ..> CellType : uses
+    ICell ..> CellPosition : uses
+}
+
+note top of ICell
+  Interface defining unified cell access.
+  All format-specific cells must implement this.
+end note
+
+note top of IWorksheet
+  Interface defining unified worksheet access.
+  Supports lazy loading of content.
+end note
+
+note top of IWorkbook
+  Interface representing the entire workbook.
+  Factory pattern creates concrete implementations.
+end note
+
+note top of IReaderStrategy
+  Strategy pattern interface for format-specific readers.
+  Each format implements its own strategy.
+end note
+
+note top of ReaderStrategyFactory
+  Singleton factory that manages all reader strategies.
+  Selects appropriate strategy based on file extension.
+end note
+
+note top of WorkbookFactory
+  Main entry point for users.
+  Usage: WorkbookFactory::open("file.xls")
+end note
+
+@enduml

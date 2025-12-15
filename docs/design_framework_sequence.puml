@@ -1,0 +1,138 @@
+@startuml TableReader_Sequence_Diagram
+
+title C++ Table Reader Framework - Interaction Sequence
+
+actor User
+participant "WorkbookFactory" as WF <<factory>>
+participant "ReaderStrategyFactory" as RSF <<factory>>
+participant "XlsReaderStrategy" as XRS <<strategy>>
+participant "XlsWorkbook" as WB <<workbook>>
+participant "XlsWorksheet" as WS <<worksheet>>
+participant "XlsCell" as Cell <<cell>>
+
+== Opening Workbook ==
+
+User -> WF : open("data.xls")
+activate WF
+
+WF -> RSF : getInstance()
+activate RSF
+RSF --> WF : factory instance
+deactivate RSF
+
+WF -> RSF : createStrategy("data.xls")
+activate RSF
+
+RSF -> XRS : canHandle("data.xls")
+activate XRS
+XRS --> RSF : true
+deactivate XRS
+
+RSF -> XRS : new XlsReaderStrategy()
+activate XRS
+XRS --> RSF : strategy instance
+deactivate XRS
+
+RSF --> WF : unique_ptr<IReaderStrategy>
+deactivate RSF
+
+WF -> XRS : openWorkbook("data.xls")
+activate XRS
+
+note right of XRS
+  XlsReaderStrategy calls
+  xls_open() from libxls
+end note
+
+XRS -> WB : new XlsWorkbook("data.xls")
+activate WB
+
+note right of WB
+  Constructor opens file
+  and calls loadSheetMetadata()
+end note
+
+WB -> WB : loadSheetMetadata()
+note right of WB
+  Iterates through workbook sheets
+  Creates XlsWorksheet objects
+  (content not yet parsed)
+end note
+
+WB --> XRS : XlsWorkbook instance
+deactivate WB
+
+XRS --> WF : unique_ptr<IWorkbook>
+deactivate XRS
+
+WF --> User : unique_ptr<IWorkbook>
+deactivate WF
+
+== Accessing Worksheet ==
+
+User -> WB : getSheet(0)
+activate WB
+
+note right of WB
+  Returns cached
+  XlsWorksheet instance
+end note
+
+WB --> User : shared_ptr<IWorksheet>
+deactivate WB
+
+== Accessing Cell ==
+
+User -> WS : getCell("A1")
+activate WS
+
+WS -> WS : ensureLoaded()
+note right of WS
+  If not loaded:
+  Calls xls_parseWorkSheet()
+  Sets isLoaded_ = true
+end note
+
+WS -> WS : parseAddress("A1")
+note right of WS
+  Converts "A1" to
+  row=0, col=0
+end note
+
+note right of WS
+  Calls xls_cell(sheet_, 0, 0)
+  to get raw cell data
+end note
+
+WS -> Cell : new XlsCell(xlsCell*)
+activate Cell
+
+Cell -> Cell : initialize()
+note right of Cell
+  Copies cell data
+  Calls inferValue()
+  to determine type
+end note
+
+Cell --> WS : XlsCell instance
+deactivate Cell
+
+WS --> User : shared_ptr<ICell>
+deactivate WS
+
+== Reading Cell Value ==
+
+User -> Cell : asString(true)
+activate Cell
+
+Cell -> Cell : check type_
+note right of Cell
+  Based on CellType,
+  formats value_ variant
+  to string
+end note
+
+Cell --> User : "value"
+deactivate Cell
+
+@enduml

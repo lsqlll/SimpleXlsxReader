@@ -1,5 +1,5 @@
 # 构建目录
-build/
+/build/
 
 # CMake 生成文件
 CMakeCache.txt
@@ -14,18 +14,13 @@ install_manifest.txt
 *.ninja
 build.ninja
 
-# 临时文件
-*~
-*.swp
-*.swo
-*.swn
-
 # 编译输出
-*.so
-*.so.*
-*.dylib
 *.exe
 
 # 其他
-.cache/
 *.jpg
+
+AGENTS.md
+.env
+*~
+.qoder/
