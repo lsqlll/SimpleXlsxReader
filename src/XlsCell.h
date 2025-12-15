@@ -13,6 +13,7 @@
 #include <variant>
 
 #include "CellType.h"
+#include "Exceptions.h"
 #include "utils.h"
 
 class XlsCell
@@ -31,6 +32,7 @@ class XlsCell
         {
             type_ = CellType::BLANK;
             value_ = std::monostate{};
+            return;
         }
         try
         {
@@ -39,6 +41,7 @@ class XlsCell
             {
                 value_ = tmp;
                 type_ = CellType::NUMBER;
+                return;
             }
         }
         catch (...)
@@ -53,6 +56,7 @@ class XlsCell
             {
                 value_ = tmp;
                 type_ = CellType::BOOL;
+                return;
             }
         }
 
@@ -332,10 +336,10 @@ class XlsCell
     {
         if (cell == nullptr)
         {
-            throw ExcelReader::NullCellException ("");
+            throw ExcelReader::InvalidCellException ("nullptr");
         }
 
-        cell_ = std::make_shared<xls::xlsCell> (*cell);
+        cell_ = std::make_shared<xls::xlsCell> (cell);
         try
         {
             location_ = CellPosition (cell->row, cell->col);
