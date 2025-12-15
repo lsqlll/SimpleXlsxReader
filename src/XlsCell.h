@@ -244,15 +244,16 @@ class XlsCell
     [[nodiscard]] std::string
     asBoolString () const
     {
-        bool boolValue = false;
-
         if (const auto *b = std::get_if<bool> (&value_))
         {
-            boolValue = *b;
+            return *b ? "TRUE" : "FALSE";
         }
-        boolValue = cell_->d != 0.0;
 
-        return boolValue ? "TRUE" : "FALSE";
+        if (std::abs (cell_->d) > std::numeric_limits<double>::epsilon ())
+        {
+            return "True";
+        }
+        return "False";
     }
 
     [[nodiscard]] std::string
