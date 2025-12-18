@@ -1,0 +1,13 @@
+Name,Age,Score,Passed,Date,Notes
+Alice,25,95.5,TRUE,2023-01-15,Excellent student
+Bob,30,87.3,TRUE,2023-02-20,Good performance
+Charlie,22,45.2,FALSE,2023-03-10,Needs improvement
+Diana,28,92.0,TRUE,2023-04-05,Outstanding work
+Eve,35,0,FALSE,2023-05-12,
+Frank,27,100,TRUE,2023-06-18,Perfect score
+Grace,24,78.5,TRUE,2023-07-22,Above average
+Henry,31,-5.5,FALSE,2023-08-30,Invalid data
+,26,88.8,TRUE,2023-09-14,Missing name
+John,,75.0,TRUE,2023-10-01,Missing age
+Kate,29,,FALSE,2023-11-11,Missing score
+  Spaces  ,32,  99.9  ,TRUE,2023-12-25,  Whitespace test  
