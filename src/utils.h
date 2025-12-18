@@ -128,7 +128,7 @@ tolower (const std::string &raw_value)
 }
 
 inline bool
-isDateTime (int Did)
+isDateTime (int formatId)
 {
     // Page and section numbers below refer to
     // ECMA-376 (version, date, and download URL given in XlsxCell.h)
@@ -155,25 +155,25 @@ isDateTime (int Did)
     // This function stores knowledge about these built-in number formats.
     //
     // 18.8.30 numFmt (Number Format) p1786
-    // Date times: 14-22, 27-36, 45-47, 50-58, 71-81 (inclusive)
-    if ((Did >= 14 && Did <= 22) || (Did >= 27 && Did <= 36)
-        || (Did >= 45 && Did <= 47) || (Did >= 50 && Did <= 58)
-        || (Did >= 71 && Did <= 81))
-    {
-        return true;
-    }
+    // Built-in date/time format IDs according to ECMA-376:
+    // 14-22: Date and time formats
+    // 27-36: More date formats (Chinese, Japanese, Korean locales)
+    // 45-47: Time formats
+    // 50-58: More date/time formats
+    // 71-81: Additional date/time formats
 
-    // Built-in format that's not a date
-    if (Did < 164)
-    {
-        return false;
-    }
-    std::set<int> dateFormats
-        = { 14, 15, 16, 17, 18, 19, 20, 21, 22, 27, 28, 29,
-            30, 31, 32, 33, 34, 35, 36, 50, 51, 52, 53, 54,
-            55, 56, 57, 58, 59, 60, 61, 62, 67, 68, 69 };
+    // Check for built-in date/time format IDs
+    return (formatId >= 14 && formatId <= 22) || // Standard date/time formats
+           (formatId >= 27 && formatId <= 36) || // CJK date formats
+           (formatId >= 45 && formatId <= 47) || // Time formats
+           (formatId >= 50 && formatId <= 58) || // More date/time formats
+           (formatId >= 71 && formatId <= 81); // Additional date/time formats
 
-    return dateFormats.count (Did) > 0;
+    // Note: For format IDs >= 164, they are custom formats.
+    // We would need to parse the format string to determine if they contain
+    // date/time formatting codes (y, m, d, h, s, etc.).
+    // The original code had a set of specific IDs, but that approach was
+    // incomplete and potentially incorrect for custom formats.
 }
 
 inline std::pair<std::size_t, std::size_t>
