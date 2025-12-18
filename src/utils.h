@@ -78,11 +78,15 @@ isValide (const fs::path &path)
     return true;
 }
 
-inline std::string
+std::string
 trim (const std::string &str)
 {
-    auto start = str.find_first_not_of (" \t");
-    auto end = str.find_last_not_of (" \t");
+    auto start = str.find_first_not_of (" \t\r\n\v");
+    if (start == std::string::npos)
+    {
+        return ""; // String contains only whitespace
+    }
+    auto end = str.find_last_not_of (" \t\r\n\v");
     return str.substr (start, end - start + 1);
 }
 
