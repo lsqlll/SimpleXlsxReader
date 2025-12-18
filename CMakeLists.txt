@@ -7,25 +7,37 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 设置第三方库路径
 set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third-party)
 set(GTEST_DIR ${THIRD_PARTY_DIR}/googletest)
-set(BOOST_DIR ${THIRD_PARTY_DIR}/Boost_1_89_0)
-
-# 完全禁用系统的 Boost 配置
-set(Boost_NO_BOOST_CMAKE ON)
-set(Boost_NO_SYSTEM_PATHS ON)
-set(BOOST_ROOT ${BOOST_DIR})
-set(BOOST_INCLUDEDIR ${BOOST_DIR}/include)
 
 add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
 set_target_properties(gtest gmock gtest_main PROPERTIES
     EXCLUDE_FROM_ALL TRUE
     EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 
+# 查找 libiconv - 先修正这部分
+message(STATUS "Looking for libiconv...")
+
+# 方法1: 使用 find_package
+find_package(Iconv QUIET)
+
+if(Iconv_FOUND)
+    message(STATUS "Found libiconv via find_package")
+    message(STATUS "Iconv_LIBRARIES: ${Iconv_LIBRARIES}")
+    message(STATUS "Iconv_INCLUDE_DIRS: ${Iconv_INCLUDE_DIRS}")
+    
+    # 创建正确的导入目标
+    add_library(iconv::iconv INTERFACE IMPORTED)
+    target_include_directories(iconv::iconv INTERFACE ${Iconv_INCLUDE_DIRS})
+    target_link_libraries(iconv::iconv INTERFACE ${Iconv_LIBRARIES})
+else()
+    message(FATAL_ERROR "libiconv not found! Please install it with: pacman -S mingw-w64-x86_64-libiconv")
+endif()
+
 # 查找 libxls
 set(LIBXLS_INCLUDE_DIR ${THIRD_PARTY_DIR}/libxls/include)
 set(LIBXLS_LIBRARY_DIR ${THIRD_PARTY_DIR}/libxls/lib/mingw64/lib)
 
 find_library(LIBXLS_LIBRARY
-    NAMES xls libxls xlsreader
+    NAMES xlsreader libxlsreader
     PATHS ${LIBXLS_LIBRARY_DIR}
     NO_DEFAULT_PATH
 )
@@ -39,22 +51,16 @@ if(LIBXLS_LIBRARY)
         INTERFACE_INCLUDE_DIRECTORIES ${LIBXLS_INCLUDE_DIR}
     )
 else()
-    message(STATUS "libxls library not found")
+    message(FATAL_ERROR "libxls library not found at ${LIBXLS_LIBRARY_DIR}")
 endif()
 
-# 检查 Boost 目录结构
-message(STATUS "Checking Boost directory: ${BOOST_DIR}")
-
-if(EXISTS ${BOOST_DIR}/include/boost)
-    message(STATUS "Boost headers found")
-else()
-    message(WARNING "Boost headers not found at ${BOOST_DIR}/include/boost")
-endif()
-
+# 添加测试程序
 add_executable(CellFuncTest test/CellfuncTest.cpp src/Exceptions.h)
 
-# 链接库
+# 链接库 - 确保顺序正确
 target_link_libraries(CellFuncTest PRIVATE
+    libxls::libxls
+    iconv::iconv      # libxls 依赖 iconv
     gtest
     gmock
     gtest_main
@@ -76,21 +82,18 @@ set_target_properties(CellFuncTest PROPERTIES
 # testStringViewUtils.cpp
 add_executable(testStringViewUtils test/testStringViewUtils.cpp src/Exceptions.h)
 
-# 链接库
 target_link_libraries(testStringViewUtils PRIVATE
     gtest
     gmock
     gtest_main
 )
 
-# 包含目录
 target_include_directories(testStringViewUtils PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${GTEST_DIR}/googletest/include
     ${GTEST_DIR}/googlemock/include
 )
 
-# 设置输出目录
 set_target_properties(testStringViewUtils PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
