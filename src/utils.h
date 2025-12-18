@@ -61,17 +61,18 @@ isValide (const fs::path &path)
 
     if (fs::is_directory (path))
     {
-        throw ExcelReader::PathNotFileException (path.string ());
+        throw ExcelReader::FileNotFoundException (path.string ());
     }
 
     if (!fs::is_regular_file (path))
     {
-        throw ExcelReader::UnsupportedException ("format " + path.string ());
+        throw ExcelReader::UnsupportedFormatException ("format "
+                                                       + path.string ());
     }
 
     if (!isExcelFormat (path.extension ().string ()))
     {
-        throw ExcelReader::UnsupportedException (
+        throw ExcelReader::UnsupportedFormatException (
             "format " + path.extension ().string ());
     }
     return true;
@@ -202,7 +203,7 @@ parseAddress (const std::string &addr)
     }
     catch (...)
     {
-        throw ExcelReader::ParseAddrException (addr);
+        throw ExcelReader::AddressParseException (addr);
     }
 
     return std::make_pair (row, col);
@@ -232,9 +233,4 @@ _getPath (const std::string &p)
     return path;
 }
 
-const auto xlsDeleter = [] (xls::xlsWorkBook *wb)
-{
-    if (wb)
-        xls::xls_close_WB (wb);
-};
 #endif
