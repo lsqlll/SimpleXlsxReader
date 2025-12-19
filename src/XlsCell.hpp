@@ -264,7 +264,7 @@ class XlsCell
     }
 
     [[nodiscard]] std::string
-    asString (bool trimWs) const
+    asNormalString (bool trimWs) const
     {
         std::string result;
 
@@ -378,11 +378,58 @@ class XlsCell
         return -1;
     }
 
-    // 如果trim那么意味着推到字符串可能代码的值，例如" 123"代表123
-    // 否则只推到字面值
+    [[nodiscard]] CellPosition
+    getPosition () const
+    {
+        return location_;
+    }
 
     [[nodiscard]] std::string
-    asStdString (const bool trimWs) const
+    getAddress () const
+    {
+        return location_.getAddr ();
+    }
+
+    [[nodiscard]] CellType
+    getType () const
+    {
+        return type_.value_or (CellType::UNKNOWN);
+    }
+
+    [[nodiscard]] bool
+    isBlank () const
+    {
+        return getType () == CellType::BLANK;
+    }
+
+    [[nodiscard]] bool
+    isString () const
+    {
+        return getType () == CellType::STRING;
+    }
+
+    [[nodiscard]] bool
+    isNumber () const
+    {
+        return getType () == CellType::NUMBER;
+    }
+
+    [[nodiscard]] bool
+    isBoolean () const
+    {
+        return getType () == CellType::BOOL;
+    }
+
+    [[nodiscard]] bool
+    isDate () const
+    {
+        return getType () == CellType::DATE;
+    }
+
+    // 如果trim那么意味着推到字符串可能代码的值，例如" 123"代表123
+    // 否则只推到字面值
+    [[nodiscard]] std::string
+    asString (const bool trimWs) const
     {
         // 处理未初始化的情况
         if (!type_.has_value ())
@@ -406,7 +453,7 @@ class XlsCell
             return asNumberString ();
 
         case CellType::STRING:
-            return asString (trimWs);
+            return asNormalString (trimWs);
 
         default:
             return "";
@@ -475,8 +522,7 @@ class XlsCell
         }
     }
 
-    // 新增value()方法，返回实际存储的值
-    [[nodiscard]] const auto &
+    [[nodiscard]] auto
     value () const
     {
         return value_;

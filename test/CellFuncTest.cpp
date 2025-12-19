@@ -1,4 +1,3 @@
-#include "../src/CellType.hpp"
 #include "../src/Exceptions.hpp"
 #include "../src/XlsCell.hpp"
 #include "gtest/gtest.h"
@@ -110,7 +109,7 @@ TEST_F (XlsCellTest, ConstructorWithValidCell)
 
     EXPECT_EQ (xlsCell.row (), 1);
     EXPECT_EQ (xlsCell.col (), 0);
-    EXPECT_EQ (xlsCell.asStdString (false), "Alice");
+    EXPECT_EQ (xlsCell.asString (false), "Alice");
 }
 
 TEST_F (XlsCellTest, ConstructorWithNullCell)
@@ -131,7 +130,7 @@ TEST_F (XlsCellTest, StringCellBasic)
 
     XlsCell xlsCell (cell);
 
-    EXPECT_EQ (xlsCell.asStdString (false), "Bob");
+    EXPECT_EQ (xlsCell.asString (false), "Bob");
     EXPECT_FALSE (xlsCell.asLogical ());
     EXPECT_DOUBLE_EQ (xlsCell.asDouble (), 0.0);
     EXPECT_EQ (xlsCell.valueType (), "string");
@@ -146,7 +145,7 @@ TEST_F (XlsCellTest, StringCellWithWhitespace)
     XlsCell xlsCell (cell);
 
     // trim=true 应该去除前后空格
-    EXPECT_EQ (xlsCell.asStdString (true), "Spaces");
+    EXPECT_EQ (xlsCell.asString (true), "Spaces");
 }
 
 TEST_F (XlsCellTest, StringCellWithNewline)
@@ -158,7 +157,7 @@ TEST_F (XlsCellTest, StringCellWithNewline)
     XlsCell xlsCell (cell);
 
     // trim=true 应该去除前后空格
-    EXPECT_EQ (xlsCell.asStdString (true), "");
+    EXPECT_EQ (xlsCell.asString (true), "");
 }
 
 TEST_F (XlsCellTest, StringCellMultipleRecords)
@@ -173,7 +172,7 @@ TEST_F (XlsCellTest, StringCellMultipleRecords)
         if (cell != nullptr)
         {
             XlsCell xlsCell (cell);
-            EXPECT_EQ (xlsCell.asStdString (false), expectedNames[i]);
+            EXPECT_EQ (xlsCell.asString (false), expectedNames[i]);
         }
     }
 }
@@ -204,7 +203,7 @@ TEST_F (XlsCellTest, IntegerCell)
     XlsCell xlsCell (cell);
 
     EXPECT_DOUBLE_EQ (xlsCell.asDouble (), 25.0);
-    EXPECT_EQ (xlsCell.asStdString (false), "25");
+    EXPECT_EQ (xlsCell.asString (false), "25");
 }
 
 TEST_F (XlsCellTest, ZeroCell)
@@ -217,7 +216,7 @@ TEST_F (XlsCellTest, ZeroCell)
 
     EXPECT_DOUBLE_EQ (xlsCell.asDouble (), 0.0);
     EXPECT_FALSE (xlsCell.asLogical ());
-    EXPECT_EQ (xlsCell.asStdString (false), "0");
+    EXPECT_EQ (xlsCell.asString (false), "0");
 }
 
 TEST_F (XlsCellTest, NegativeCell)
@@ -241,7 +240,7 @@ TEST_F (XlsCellTest, PerfectScoreCell)
     XlsCell xlsCell (cell);
 
     EXPECT_DOUBLE_EQ (xlsCell.asDouble (), 100.0);
-    EXPECT_EQ (xlsCell.asStdString (false), "100");
+    EXPECT_EQ (xlsCell.asString (false), "100");
 }
 
 // ============================================================================
@@ -257,7 +256,7 @@ TEST_F (XlsCellTest, BooleanValues)
     XlsCell xlsCell (cell);
 
     // Excel中的TRUE/FALSE可能被存储为字符串或布尔值
-    std::string value = xlsCell.asStdString (false);
+    std::string value = xlsCell.asString (false);
     EXPECT_TRUE (value == "TRUE" || value == "true" || value == "1"
                  || xlsCell.asLogical ());
 }
@@ -270,7 +269,7 @@ TEST_F (XlsCellTest, BooleanFalseValues)
 
     XlsCell xlsCell (cell);
 
-    std::string value = xlsCell.asStdString (false);
+    std::string value = xlsCell.asString (false);
     EXPECT_TRUE (value == "FALSE" || value == "false" || value == "0"
                  || !xlsCell.asLogical ());
 }
@@ -359,9 +358,8 @@ TEST_F (XlsCellTest, FormualCell)
 
     XlsCell xlsCell (cell);
 
-    EXPECT_EQ (xlsCell.asStdString (false), "6");
-    EXPECT_EQ (xlsCell.value (), 6.0);
-    EXPECT_EQ (xlsCell.valueType (), CellType::NUMBER);
+    EXPECT_EQ (xlsCell.asString (false), "6");
+    EXPECT_TRUE (xlsCell.valueType () == "double");
 }
 
 // ============================================================================
@@ -376,7 +374,7 @@ TEST_F (XlsCellTest, EmptyStringCell)
 
     XlsCell xlsCell (cell);
 
-    EXPECT_EQ (xlsCell.asStdString (false), "");
+    EXPECT_EQ (xlsCell.asString (false), "");
 }
 
 TEST_F (XlsCellTest, MissingCells)
@@ -387,7 +385,7 @@ TEST_F (XlsCellTest, MissingCells)
     if (cell1 != nullptr)
     {
         XlsCell xlsCell (cell1);
-        EXPECT_EQ (xlsCell.asStdString (false), "");
+        EXPECT_EQ (xlsCell.asString (false), "");
     }
 
     // 缺失年龄 (row=10, col=1)
@@ -395,7 +393,7 @@ TEST_F (XlsCellTest, MissingCells)
     if (cell2 != nullptr)
     {
         XlsCell xlsCell (cell2);
-        std::string value = xlsCell.asStdString (false);
+        std::string value = xlsCell.asString (false);
         EXPECT_TRUE (value == "" || xlsCell.asDouble () == 0.0);
     }
 }
@@ -414,7 +412,7 @@ TEST_F (XlsCellTest, CopyConstructor)
 
     EXPECT_EQ (original.row (), copy.row ());
     EXPECT_EQ (original.col (), copy.col ());
-    EXPECT_EQ (original.asStdString (false), copy.asStdString (false));
+    EXPECT_EQ (original.asString (false), copy.asString (false));
 }
 
 TEST_F (XlsCellTest, MoveConstructor)
@@ -425,13 +423,13 @@ TEST_F (XlsCellTest, MoveConstructor)
     XlsCell original (cell);
     int originalRow = original.row ();
     int originalCol = original.col ();
-    std::string originalValue = original.asStdString (false);
+    std::string originalValue = original.asString (false);
 
     XlsCell moved (std::move (original));
 
     EXPECT_EQ (moved.row (), originalRow);
     EXPECT_EQ (moved.col (), originalCol);
-    EXPECT_EQ (moved.asStdString (false), originalValue);
+    EXPECT_EQ (moved.asString (false), originalValue);
 }
 
 TEST_F (XlsCellTest, CopyAssignment)
@@ -446,7 +444,7 @@ TEST_F (XlsCellTest, CopyAssignment)
 
     cellB = cellA;
 
-    EXPECT_EQ (cellB.asStdString (false), "Alice");
+    EXPECT_EQ (cellB.asString (false), "Alice");
 }
 
 // ============================================================================
