@@ -1,4 +1,4 @@
-#include < gtest.h>
+#include "gtest/gtest.h"
 #include <algorithm>
 #include <cctype>
 #include <string>
@@ -8,11 +8,15 @@ inline std::string
 trim (const std::string &str)
 {
     if (str.empty ())
+    {
         return str;
+    }
 
     auto start = str.find_first_not_of (" \t");
     if (start == std::string::npos)
+    {
         return "";
+    }
 
     auto end = str.find_last_not_of (" \t");
     return str.substr (start, end - start + 1);
