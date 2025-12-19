@@ -7,6 +7,12 @@
 },
 {
   "directory": "E:/Cpp/simpleTableReader/build",
+  "command": "E:\\msys64\\mingw64\\bin\\g++.exe -IE:/Cpp/simpleTableReader/src -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock -g -std=gnu++17 -o CMakeFiles\\testStringViewUtils.dir\\test\\testStringViewUtils.cpp.obj -c E:\\Cpp\\simpleTableReader\\test\\testStringViewUtils.cpp",
+  "file": "E:/Cpp/simpleTableReader/test/testStringViewUtils.cpp",
+  "output": "E:/Cpp/simpleTableReader/build/CMakeFiles/testStringViewUtils.dir/test/testStringViewUtils.cpp.obj"
+},
+{
+  "directory": "E:/Cpp/simpleTableReader/build",
   "command": "E:\\msys64\\mingw64\\bin\\g++.exe -IE:/Cpp/simpleTableReader/third-party/googletest/googlemock/include -IE:/Cpp/simpleTableReader/third-party/googletest/googlemock -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest -g -std=c++17 -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=0 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o googletest\\googlemock\\CMakeFiles\\gmock.dir\\src\\gmock-all.cc.obj -c E:\\Cpp\\simpleTableReader\\third-party\\googletest\\googlemock\\src\\gmock-all.cc",
   "file": "E:/Cpp/simpleTableReader/third-party/googletest/googlemock/src/gmock-all.cc",
   "output": "E:/Cpp/simpleTableReader/build/googletest/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.obj"
