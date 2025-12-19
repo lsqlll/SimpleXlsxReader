@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 设置第三方库路径
 set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third-party)
 set(GTEST_DIR ${THIRD_PARTY_DIR}/googletest)
+set(LIBXLS_INCLUDE_DIR ${THIRD_PARTY_DIR}/libxls/include)
+set(LIBXLS_LIBRARY_DIR ${THIRD_PARTY_DIR}/libxls/lib/mingw64/lib)
+set(LIBICONV_LIBRARY_DIR ${THIRD_PARTY_DIR}/libiconv/source/build/lib)
 
 add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
 set_target_properties(gtest gmock gtest_main PROPERTIES
@@ -17,25 +20,24 @@ set_target_properties(gtest gmock gtest_main PROPERTIES
 message(STATUS "Looking for libiconv...")
 
 # 方法1: 使用 find_package
-find_package(Iconv QUIET)
+find_library(ICONV_LIBRARY
+    NAMES libiconv iconv libiconv.la
+    PATHS ${LIBICONV_LIBRARY_DIR}
+    NO_DEFAULT_PATH
+)
 
-if(Iconv_FOUND)
-    message(STATUS "Found libiconv via find_package")
-    message(STATUS "Iconv_LIBRARIES: ${Iconv_LIBRARIES}")
-    message(STATUS "Iconv_INCLUDE_DIRS: ${Iconv_INCLUDE_DIRS}")
-    
+if(ICONV_LIBRARY)
     # 创建正确的导入目标
-    add_library(iconv::iconv INTERFACE IMPORTED)
-    target_include_directories(iconv::iconv INTERFACE ${Iconv_INCLUDE_DIRS})
-    target_link_libraries(iconv::iconv INTERFACE ${Iconv_LIBRARIES})
+    message(STATUS "Found libiconv: ${ICONV_LIBRARY}")
+    add_library(iconv::iconv STATIC IMPORTED)
+    set_target_properties(iconv::iconv PROPERTIES
+        IMPORTED_LOCATION ${ICONV_LIBRARY}
+    )
 else()
     message(FATAL_ERROR "libiconv not found! Please install it with: pacman -S mingw-w64-x86_64-libiconv")
 endif()
 
 # 查找 libxls
-set(LIBXLS_INCLUDE_DIR ${THIRD_PARTY_DIR}/libxls/include)
-set(LIBXLS_LIBRARY_DIR ${THIRD_PARTY_DIR}/libxls/lib/mingw64/lib)
-
 find_library(LIBXLS_LIBRARY
     NAMES xlsreader libxlsreader
     PATHS ${LIBXLS_LIBRARY_DIR}
@@ -60,7 +62,7 @@ add_executable(CellFuncTest test/CellfuncTest.cpp src/Exceptions.h)
 # 链接库 - 确保顺序正确
 target_link_libraries(CellFuncTest PRIVATE
     libxls::libxls
-    iconv::iconv      # libxls 依赖 iconv
+    iconv::iconv # libxls 依赖 iconv
     gtest
     gmock
     gtest_main
