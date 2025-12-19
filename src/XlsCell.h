@@ -97,12 +97,10 @@ class XlsCell
             {
                 type_ = CellType::BLANK;
                 value_ = std::monostate{};
+                return;
             }
-            else
-            {
-                type_ = CellType::BOOL;
-                value_ = cell_->d != 0;
-            }
+            type_ = CellType::BOOL;
+            value_ = cell_->d != 0;
         }
 
         // 处理错误公式
@@ -118,13 +116,12 @@ class XlsCell
         {
             type_ = CellType::BLANK;
             value_ = std::monostate{};
+            return;
         }
-        else
-        {
-            type_ = CellType::STRING;
-            value_ = std::string (cell_->str);
-        }
+        type_ = CellType::STRING;
+        value_ = std::string (cell_->str);
     };
+
     void
     inferValueFromNumberCell ()
     {
@@ -138,6 +135,7 @@ class XlsCell
         type_ = (isDateTime (format)) ? CellType::DATE : CellType::NUMBER;
         value_ = cell_->d;
     };
+
     void
     inferValueFromBoolErrCell (bool trimWs)
     {
