@@ -10,9 +10,9 @@
 #include <type_traits>
 #include <variant>
 
-#include "CellType.h"
-#include "Exceptions.h"
-#include "utils.h"
+#include "CellType.hpp"
+#include "Exceptions.hpp"
+#include "utils.hpp"
 
 class XlsCell
 {

@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "Exceptions.h"
+#include "Exceptions.hpp"
 
 #include <algorithm>
 #include <cstring>
