@@ -25,18 +25,8 @@ getStringView (const char *str)
     return std::string_view (str);
 }
 
-inline std::optional<std::string_view>
-getStringView (const std::string &str)
-{
-    if (str.empty ())
-    {
-        return std::nullopt;
-    }
-    return std::string_view (str);
-}
-
 inline bool
-startsWith (std::string_view str, std::string_view prefix)
+startsWith (const std::string &str, const std::string &prefix)
 {
     return str.substr (0, prefix.size ()) == prefix;
 };

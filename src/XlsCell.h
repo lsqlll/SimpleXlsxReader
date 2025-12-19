@@ -7,7 +7,6 @@
 #include <optional>
 #include <sstream>
 #include <string>
-#include <string_view>
 #include <type_traits>
 #include <variant>
 
@@ -69,13 +68,14 @@ class XlsCell
     inferValueFromFormulaCell ()
     {
         // 添加缺失的变量定义
-        auto rawStringView = getStringView (cell_->str);
-        constexpr std::string_view BoolStringView = "bool";
+        auto rawString = std::string (cell_->str);
+        const std::string BoolString = "bool";
 
         if (cell_->l == 0)
         {
             auto strVal = std::to_string (cell_->d);
             if (isEmpty (strVal))
+            // 只有这个数值完全不存在时才认为是空，公式计算的值什么都要可能
             {
                 type_ = CellType::BLANK;
                 value_ = std::monostate{};
@@ -88,14 +88,11 @@ class XlsCell
         }
 
         // 处理布尔公式
-        if (rawStringView.has_value ()
-            && startsWith (rawStringView.value (), BoolStringView))
+        if (!rawString.empty () && startsWith (rawString, BoolString))
         {
             bool isValidBool
-                = (cell_->d == 0
-                   && rawStringView.value ().substr (0, 5) == "false")
-                  || (cell_->d == 1
-                      && rawStringView.value ().substr (0, 4) == "true");
+                = (cell_->d == 0 && rawString.substr (0, 5) == "false")
+                  || (cell_->d == 1 && rawString.substr (0, 4) == "true");
             if (isValidBool)
             {
                 type_ = CellType::BLANK;
@@ -109,8 +106,7 @@ class XlsCell
         }
 
         // 处理错误公式
-        if (rawStringView.has_value ()
-            && rawStringView->substr (0, 5) == "error")
+        if (!rawString.empty () && rawString.substr (0, 5) == "error")
         {
             type_ = CellType::BLANK;
             value_ = std::monostate{};
