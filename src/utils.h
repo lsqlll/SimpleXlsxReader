@@ -51,7 +51,7 @@ isExcelFormat (const std::string &format)
 }
 
 inline bool
-isValide (const fs::path &path)
+isValid (const fs::path &path)
 {
     if (!fs::exists (path))
     {
