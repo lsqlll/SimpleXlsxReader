@@ -2,51 +2,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C++ Debug",
+            "name": "C++ Debug (MSYS2 Bash)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "program": "${workspaceFolder}/build/bin/${fileBasenameNoExtension}.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb",
-            "setupCommands": [
+            "environment": [
                 {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
+                    "name": "PATH",
+                    "value": "E:/msys64/usr/bin;E:/msys64/mingw64/bin;${env:PATH}"
                 }
             ],
-            "preLaunchTask": "build",
-            "logging": {
-                "moduleLoad": false,
-                "engineLogging": false,
-                "trace": false
+            "externalConsole": true, // 使用VSCode内置终端
+            "windows": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "E:/msys64/mingw64/bin/gdb.exe",
+                "setupCommands": [
+                    {
+                        "description": "启用整齐打印",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ]
             }
-        },
-        {
-            "name": "C++ Debug Current File",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "build-current-file"
         }
     ]
 }
