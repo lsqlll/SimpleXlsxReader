@@ -4,7 +4,6 @@
 #include <cmath>
 #include <iomanip>
 #include <limits>
-#include <memory>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -19,7 +18,7 @@
 class XlsCell
 {
   private:
-    std::shared_ptr<xls::xlsCell> cell_;
+    xls::xlsCell *cell_;
     CellPosition location_;
     std::optional<CellType> type_;
     std::variant<std::monostate, std::string, double, bool> value_;
@@ -151,6 +150,7 @@ class XlsCell
         {
             type_ = CellType::BLANK;
             value_ = std::monostate{};
+            return;
         }
         std::string strVal
             = (cell_->str != nullptr) ? std::string (cell_->str) : "";
@@ -160,12 +160,11 @@ class XlsCell
         {
             type_ = CellType::BOOL;
             value_ = cell_->d != 0;
+            return;
         }
-        else
-        {
-            type_ = CellType::BLANK;
-            value_ = std::monostate{};
-        }
+
+        type_ = CellType::BLANK;
+        value_ = std::monostate{};
     };
 
     void
@@ -340,7 +339,7 @@ class XlsCell
             throw ExcelReader::InvalidCellException ("nullptr");
         }
 
-        cell_ = std::make_shared<xls::xlsCell> (cell);
+        this->cell_ = cell;
         try
         {
             location_ = CellPosition (cell->row, cell->col);
