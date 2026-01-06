@@ -27,14 +27,14 @@ find_library(ICONV_LIBRARY
 )
 
 if(ICONV_LIBRARY)
-    # 创建正确的导入目标
-    message(STATUS "Found libiconv: ${ICONV_LIBRARY}")
-    add_library(iconv::iconv STATIC IMPORTED)
-    set_target_properties(iconv::iconv PROPERTIES
+  # 创建正确的导入目标
+  message(STATUS "Found libiconv: ${ICONV_LIBRARY}")
+  add_library(iconv::iconv STATIC IMPORTED)
+  set_target_properties(iconv::iconv PROPERTIES
         IMPORTED_LOCATION ${ICONV_LIBRARY}
     )
 else()
-    message(FATAL_ERROR "libiconv not found! Please install it with: pacman -S mingw-w64-x86_64-libiconv")
+  message(FATAL_ERROR "libiconv not found! Please install it with: pacman -S mingw-w64-x86_64-libiconv")
 endif()
 
 # 查找 libxls
@@ -45,19 +45,19 @@ find_library(LIBXLS_LIBRARY
 )
 
 if(LIBXLS_LIBRARY)
-    message(STATUS "Found libxls: ${LIBXLS_LIBRARY}")
+  message(STATUS "Found libxls: ${LIBXLS_LIBRARY}")
 
-    add_library(libxls::libxls STATIC IMPORTED)
-    set_target_properties(libxls::libxls PROPERTIES
+  add_library(libxls::libxls STATIC IMPORTED)
+  set_target_properties(libxls::libxls PROPERTIES
         IMPORTED_LOCATION ${LIBXLS_LIBRARY}
         INTERFACE_INCLUDE_DIRECTORIES ${LIBXLS_INCLUDE_DIR}
     )
 else()
-    message(FATAL_ERROR "libxls library not found at ${LIBXLS_LIBRARY_DIR}")
+  message(FATAL_ERROR "libxls library not found at ${LIBXLS_LIBRARY_DIR}")
 endif()
 
 # 添加测试程序
-add_executable(CellFuncTest test/CellfuncTest.cpp src/Exceptions.h)
+add_executable(CellFuncTest test/CellfuncTest.cpp )
 
 # 链接库 - 确保顺序正确
 target_link_libraries(CellFuncTest PRIVATE
@@ -82,7 +82,7 @@ set_target_properties(CellFuncTest PROPERTIES
 )
 
 # testStringViewUtils.cpp
-add_executable(testStringViewUtils test/testStringViewUtils.cpp src/Exceptions.h)
+add_executable(testStringViewUtils test/testStringViewUtils.cpp )
 
 target_link_libraries(testStringViewUtils PRIVATE
     gtest

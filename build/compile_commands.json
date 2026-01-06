@@ -1,7 +1,7 @@
 [
 {
   "directory": "E:/Cpp/simpleTableReader/build",
-  "command": "E:\\msys64\\mingw64\\bin\\g++.exe -IE:/Cpp/simpleTableReader/src -IE:/Cpp/simpleTableReader/third-party/libxls/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock -g -std=gnu++17 -o CMakeFiles\\CellFuncTest.dir\\test\\CellfuncTest.cpp.obj -c E:\\Cpp\\simpleTableReader\\test\\CellfuncTest.cpp",
+  "command": "E:\\msys64\\mingw64\\bin\\g++.exe -IE:/Cpp/simpleTableReader/src -isystem E:/Cpp/simpleTableReader/third-party/libxls/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock -g -std=gnu++17 -o CMakeFiles\\CellFuncTest.dir\\test\\CellfuncTest.cpp.obj -c E:\\Cpp\\simpleTableReader\\test\\CellfuncTest.cpp",
   "file": "E:/Cpp/simpleTableReader/test/CellfuncTest.cpp",
   "output": "E:/Cpp/simpleTableReader/build/CMakeFiles/CellFuncTest.dir/test/CellfuncTest.cpp.obj"
 },
@@ -10,6 +10,12 @@
   "command": "E:\\msys64\\mingw64\\bin\\g++.exe -IE:/Cpp/simpleTableReader/src -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock -g -std=gnu++17 -o CMakeFiles\\testStringViewUtils.dir\\test\\testStringViewUtils.cpp.obj -c E:\\Cpp\\simpleTableReader\\test\\testStringViewUtils.cpp",
   "file": "E:/Cpp/simpleTableReader/test/testStringViewUtils.cpp",
   "output": "E:/Cpp/simpleTableReader/build/CMakeFiles/testStringViewUtils.dir/test/testStringViewUtils.cpp.obj"
+},
+{
+  "directory": "E:/Cpp/simpleTableReader/build",
+  "command": "E:\\msys64\\mingw64\\bin\\g++.exe -IE:/Cpp/simpleTableReader/src -isystem E:/Cpp/simpleTableReader/third-party/libxls/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock/include -isystem E:/Cpp/simpleTableReader/third-party/googletest/googletest -isystem E:/Cpp/simpleTableReader/third-party/googletest/googlemock -g -std=gnu++17 -o CMakeFiles\\CellFuncTestV2.dir\\test\\CellfuncTestV2.cpp.obj -c E:\\Cpp\\simpleTableReader\\test\\CellfuncTestV2.cpp",
+  "file": "E:/Cpp/simpleTableReader/test/CellfuncTestV2.cpp",
+  "output": "E:/Cpp/simpleTableReader/build/CMakeFiles/CellFuncTestV2.dir/test/CellfuncTestV2.cpp.obj"
 },
 {
   "directory": "E:/Cpp/simpleTableReader/build",
