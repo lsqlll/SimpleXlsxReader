@@ -6,7 +6,7 @@
 #include <cstring>
 #include <vector>
 
-#include "XlsCell.h"
+#include "XlsCell.hpp"
 
 using XLSheets = std::vector<xls::xlsWorkSheet *>;
 using XLSRow = std::vector<XlsCell>;
