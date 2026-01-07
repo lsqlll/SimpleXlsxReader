@@ -202,18 +202,15 @@ parseAddress (const std::string &addr)
     return std::make_pair (row, col);
 }
 
-std::wstring
+auto
 _transformString2Wstring (const std::string &s)
 {
     setlocale (LC_CTYPE, "en_US.UTF-8");
-    const char *_Source = s.c_str ();
-    size_t len = std::strlen (_Source) + 1;
+    const size_t len = s.length () + 1;
     size_t converted = 0;
-    auto *wStr = new wchar_t[len];
-    mbstowcs_s (&converted, wStr, len, _Source, _TRUNCATE);
-    std::wstring result (wStr);
-    delete[] wStr;
-    return result;
+    std::vector<wchar_t> wStr (len);
+    mbstowcs_s (&converted, wStr.data (), len, s.c_str (), _TRUNCATE);
+    return std::wstring (wStr.data ());
 }
 
 fs::path
