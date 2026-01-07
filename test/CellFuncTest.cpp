@@ -1,5 +1,6 @@
 #include "../src/Exceptions.hpp"
 #include "../src/XlsCell.hpp"
+#include "CellType.hpp"
 #include "gtest/gtest.h"
 
 #include <cmath>
@@ -133,7 +134,6 @@ TEST_F (XlsCellTest, StringCellBasic)
     EXPECT_EQ (xlsCell.asString (false), "Bob");
     EXPECT_FALSE (xlsCell.asLogical ());
     EXPECT_DOUBLE_EQ (xlsCell.asDouble (), 0.0);
-    EXPECT_EQ (xlsCell.valueType (), "string");
 }
 
 TEST_F (XlsCellTest, StringCellWithWhitespace)
@@ -191,7 +191,6 @@ TEST_F (XlsCellTest, NumberCellBasic)
 
     EXPECT_DOUBLE_EQ (xlsCell.asDouble (), 95.5);
     EXPECT_TRUE (xlsCell.asLogical ());
-    EXPECT_EQ (xlsCell.valueType (), "double");
 }
 
 TEST_F (XlsCellTest, IntegerCell)
@@ -286,10 +285,10 @@ TEST_F (XlsCellTest, ValueMethodString)
     XlsCell xlsCell (cell);
 
     const auto &value = xlsCell.value ();
-    std::string type = xlsCell.valueType ();
+    CellType type = xlsCell.getType ();
 
     EXPECT_TRUE (std::holds_alternative<std::string> (value)
-                 || type == "string" || type == "monostate");
+                 || type == CellType::STRING || type == CellType::BLANK);
 }
 
 TEST_F (XlsCellTest, ValueMethodNumber)
@@ -300,10 +299,11 @@ TEST_F (XlsCellTest, ValueMethodNumber)
     XlsCell xlsCell (cell);
 
     const auto &value = xlsCell.value ();
-    std::string type = xlsCell.valueType ();
 
-    EXPECT_TRUE (std::holds_alternative<double> (value) || type == "double"
-                 || type == "monostate");
+    CellType type = xlsCell.getType ();
+
+    EXPECT_TRUE (std::holds_alternative<std::string> (value)
+                 || type == CellType::NUMBER || type == CellType::BLANK);
 }
 
 TEST_F (XlsCellTest, ValueTypeVariety)
@@ -313,14 +313,17 @@ TEST_F (XlsCellTest, ValueTypeVariety)
     {
         xls::WORD row;
         xls::WORD col;
-        std::vector<std::string> allowedTypes;
+        std::vector<CellType> allowedTypes;
     };
 
     std::vector<TestCase> cases = {
-        { 1, 0, { "string", "monostate" } },        // Alice (字符串)
-        { 1, 1, { "double", "monostate" } },        // 25 (数字)
-        { 1, 2, { "double", "monostate" } },        // 95.5 (浮点数)
-        { 1, 3, { "string", "bool", "monostate" } } // TRUE (布尔)
+        { 1, 0, { CellType::STRING, CellType::BLANK } }, // Alice (字符串)
+        { 1, 1, { CellType::NUMBER, CellType::BLANK } }, // 25 (数字)
+        { 1, 2, { CellType::NUMBER, CellType::BLANK } }, // 95.5 (浮点数)
+        { 1,
+          3,
+          { CellType::STRING, CellType::BOOL,
+            CellType::BLANK } } // TRUE (布尔)
     };
 
     for (const auto &tc : cases)
@@ -329,7 +332,7 @@ TEST_F (XlsCellTest, ValueTypeVariety)
         if (cell != nullptr)
         {
             XlsCell xlsCell (cell);
-            std::string type = xlsCell.valueType ();
+            CellType type = xlsCell.getType ();
 
             bool found = false;
             for (const auto &allowedType : tc.allowedTypes)
@@ -359,7 +362,7 @@ TEST_F (XlsCellTest, FormualCell)
     XlsCell xlsCell (cell);
 
     EXPECT_EQ (xlsCell.asString (false), "6");
-    EXPECT_TRUE (xlsCell.valueType () == "double");
+    EXPECT_TRUE (xlsCell.getType () == CellType::NUMBER);
 }
 
 // ============================================================================
