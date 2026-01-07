@@ -7,7 +7,6 @@
 #include <optional>
 #include <sstream>
 #include <string>
-#include <type_traits>
 #include <variant>
 
 #include "CellType.hpp"
@@ -35,12 +34,9 @@ class XlsCell
         try
         {
             auto tmp = std::stod (s);
-            if (tmp < std::numeric_limits<double>::epsilon ())
-            {
-                value_ = tmp;
-                type_ = CellType::NUMBER;
-                return;
-            }
+            value_ = tmp;
+            type_ = CellType::NUMBER;
+            return;
         }
         catch (...)
         {
@@ -49,15 +45,15 @@ class XlsCell
         try
         {
             auto strlower = tolower (s);
-            auto tmp = std::equal (strlower.begin (), strlower.end (), "bool");
-            if (tmp)
+            bool isTrue = (strlower == "true");
+            bool isFalse = (strlower == "false");
+            if (isTrue || isFalse)
             {
-                value_ = tmp;
+                value_ = isTrue;
                 type_ = CellType::BOOL;
                 return;
             }
         }
-
         catch (...)
         {
         }
@@ -181,6 +177,7 @@ class XlsCell
         type_ = CellType::STRING;
         value_ = tmp;
     };
+
     void
     inferUnknownCell ()
     {
@@ -526,34 +523,5 @@ class XlsCell
     value () const
     {
         return value_;
-    }
-
-    // 便捷方法：获取实际值的类型
-    [[nodiscard]] std::string
-    valueType () const
-    {
-        return std::visit (
-            [] (const auto &val) -> std::string
-            {
-                using T = std::decay_t<decltype (val)>;
-                if constexpr (std::is_same_v<T, std::monostate>)
-                {
-                    return "monostate";
-                }
-                else if constexpr (std::is_same_v<T, std::string>)
-                {
-                    return "string";
-                }
-                else if constexpr (std::is_same_v<T, double>)
-                {
-                    return "double";
-                }
-                else if constexpr (std::is_same_v<T, bool>)
-                {
-                    return "bool";
-                }
-                return "unknown";
-            },
-            value_);
     }
 };
