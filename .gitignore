@@ -23,6 +23,7 @@ build.ninja
 *.xls
 *.xlsx
 *.csv
+*.json
 
 AGENTS.md
 .env
