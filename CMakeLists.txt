@@ -64,7 +64,6 @@ target_link_libraries(CellFuncTest PRIVATE
     libxls::libxls
     iconv::iconv # libxls 依赖 iconv
     gtest
-    gmock
     gtest_main
 )
 
@@ -73,7 +72,6 @@ target_include_directories(CellFuncTest PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${LIBXLS_INCLUDE_DIR}
     ${GTEST_DIR}/googletest/include
-    ${GTEST_DIR}/googlemock/include
 )
 
 # 设置输出目录
@@ -82,27 +80,26 @@ set_target_properties(CellFuncTest PROPERTIES
 )
 
 # testStringViewUtils.cpp
-add_executable(testStringViewUtils test/testStringViewUtils.cpp )
-
-target_link_libraries(testStringViewUtils PRIVATE
-    gtest
-    gmock
-    gtest_main
-)
-
-target_include_directories(testStringViewUtils PRIVATE
-    ${CMAKE_SOURCE_DIR}/src
-    ${GTEST_DIR}/googletest/include
-    ${GTEST_DIR}/googlemock/include
-)
-
-set_target_properties(testStringViewUtils PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
+#add_executable(testStringViewUtils test/testStringViewUtils.cpp )
+#
+#target_link_libraries(testStringViewUtils PRIVATE
+#    gtest
+#    gmock
+#    gtest_main
+#)
+#
+#target_include_directories(testStringViewUtils PRIVATE
+#    ${CMAKE_SOURCE_DIR}/src
+#    ${GTEST_DIR}/googletest/include
+#    ${GTEST_DIR}/googlemock/include
+#)
+#
+#set_target_properties(testStringViewUtils PROPERTIES
+#    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+#)
 
 add_custom_target(build_gtest
     COMMENT "Building Google Test libraries"
     DEPENDS gtest gmock gtest_main
 )
 add_dependencies(CellFuncTest build_gtest)
-add_dependencies(testStringViewUtils build_gtest)

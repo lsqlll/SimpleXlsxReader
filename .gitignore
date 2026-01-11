@@ -20,6 +20,9 @@ build.ninja
 
 # 其他
 *.jpg
+*.xls
+*.xlsx
+*.csv
 
 AGENTS.md
 .env
