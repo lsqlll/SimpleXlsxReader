@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C++ Debug (MSYS2 Bash)",
+            "name": "C++ Debug (MSYS2 MingW64 Bash)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/${fileBasenameNoExtension}.exe",
@@ -12,7 +12,7 @@
             "environment": [
                 {
                     "name": "PATH",
-                    "value": "E:/msys64/usr/bin;E:/msys64/mingw64/bin;${env:PATH}"
+                    "value": "E:/msys64/mingw64/bin;${env:PATH}"
                 }
             ],
             "externalConsole": true, // 使用VSCode内置终端

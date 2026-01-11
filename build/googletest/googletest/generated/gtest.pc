@@ -1,5 +1,5 @@
-libdir=e:/Cpp/simpleTableReader/install/lib
-includedir=e:/Cpp/simpleTableReader/install/include
+libdir=C:/Program Files (x86)/simpleTableReader/lib
+includedir=C:/Program Files (x86)/simpleTableReader/include
 
 Name: gtest
 Description: GoogleTest (without main() function)
