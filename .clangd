@@ -1,7 +1,7 @@
 # 项目根目录的 .clangd 文件
 CompileFlags:
   Add: 
-    - "-std=c++17"
+    - "-std=c++20"
     - "-Wall"
     - "-Wextra"
     - "-IE:/mingw64/include/c++/14.2.0"

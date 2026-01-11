@@ -1,9 +1,30 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string>
+
+#include "utils.hpp"
+
+// 基础整数概念
+template <typename T = std::size_t> concept IntegralIndex = requires (T t)
+{
+    requires std::integral<T>;
+    requires !std::same_as<T, bool>;
+    requires !std::same_as<T, char>;
+    { t >= 0 } -> std::convertible_to<bool>; // 确保可以比较
+    { t + 1 } -> std::same_as<T>;            // 确保可以做算术
+};
+
+// 可选整数概念
+template <typename T>
+concept OptionalIntegralIndex
+    = IntegralIndex<T> || std::same_as<T, std::nullopt_t>;
+
+// Concepts for CellPosition template constraints
+// ============================================================================
 
 enum class CellType : uint8_t
 {
@@ -25,27 +46,21 @@ struct CellPosition
     explicit CellPosition (std::nullopt_t /*unused*/)
         : row (std::nullopt), col (std::nullopt), addr (std::nullopt) {};
 
-    explicit CellPosition (std::size_t rowVal, std::size_t colVal)
-        : row (rowVal), col (colVal), addr (std::nullopt)
+    explicit CellPosition (std::size_t row, std::size_t col)
+        : row (row), col (col)
     {
         calculateExcelAddress ();
     }
 
-    template <typename T1, typename T2>
-    explicit CellPosition (T1 rowVal, T2 colVal)
+    template <IntegralIndex T1, IntegralIndex T2>
+    explicit CellPosition (T1 row, T2 col) : row (row), col (col)
     {
-        row = convertToSizef (rowVal);
-        col = convertToSizef (colVal);
-        if (row.has_value () || col.has_value ())
-        {
-            calculateExcelAddress ();
-        }
+        calculateExcelAddress ();
     }
 
-    template <typename T1, typename T2>
+    template <IntegralIndex T1, IntegralIndex T2>
     explicit CellPosition (std::pair<T1, T2> loc)
-        : row (static_cast<std::size_t> (loc.first)),
-          col (static_cast<std::size_t> (loc.second)), addr (std::nullopt)
+        : row (loc.first), col (loc.second), addr (std::nullopt)
     {
         calculateExcelAddress ();
     }
@@ -53,65 +68,27 @@ struct CellPosition
     explicit CellPosition (const std::string &addr) : addr (addr)
     {
         // 解析地址 A1 -> (0,0), B2 -> (1,1)
-        std::string col_part;
-        std::string row_part;
-        size_t idx = 0;
-        while (idx < addr.length () && (std::isalpha (addr[idx]) != 0))
-        {
-            col_part += addr[idx];
-            idx++;
-        }
-        while (idx < addr.length () && (std::isdigit (addr[idx]) != 0))
-        {
-            row_part += addr[idx];
-            idx++;
-        }
-
-        int col_num = 0;
-        for (char chr : col_part)
-        {
-            col_num = col_num * 26 + (chr - 'A' + 1);
-        }
-
-        if (!row_part.empty ())
-        {
-            row = std::stoi (row_part) - 1;
-        }
-        else
-        {
-            row = 0;
-        }
-
-        col = col_num >= 0 ? static_cast<std::size_t> (col_num - 1) : 0;
+        auto [rowNum, colNum] = parseAddress (addr);
+        this->row = rowNum;
+        this->col = colNum;
     };
 
-    [[nodiscard]] std::size_t
+    [[nodiscard]] constexpr std::size_t
     getRow () const
     {
-        if (this->row.has_value ())
-        {
-            return this->row.value ();
-        }
-        return -1;
+        return this->row.value_or (-1);
     }
 
-    [[nodiscard]] std::size_t
+    [[nodiscard]] constexpr std::size_t
     getCol () const
     {
-        if (this->col.has_value ())
-        {
-            return this->col.value ();
-        }
-        return -1;
+        return this->col.value_or (-1);
     }
+
     [[nodiscard]] std::string
     getAddr () const
     {
-        if (this->addr.has_value ())
-        {
-            return this->addr.value ();
-        }
-        return "";
+        return this->addr.value_or ("");
     }
 
     ~CellPosition () = default;
@@ -127,7 +104,7 @@ struct CellPosition
         }
 
         std::string colPart;
-        std::size_t colNum = col.value ();
+        std::size_t colNum{ 0 };
 
         while (true)
         {
@@ -138,23 +115,7 @@ struct CellPosition
             }
             colNum = colNum / 26 - 1;
         }
-        std::reverse (colPart.begin (), colPart.end ());
+        std::ranges::reverse (colPart);
         this->addr = colPart + std::to_string (row.value () + 1);
-    }
-
-    template <typename T>
-    static std::optional<std::size_t>
-    convertToSizef (T value)
-    {
-        if constexpr (std::is_same_v<T, std::nullopt_t>)
-        {
-            return std::nullopt;
-        }
-        else if constexpr (std::is_integral_v<T>)
-        {
-            return static_cast<std::size_t> (value);
-        }
-
-        return std::nullopt;
     }
 };

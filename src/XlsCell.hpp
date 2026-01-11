@@ -1,12 +1,12 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <limits>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <variant>
 
 #include "CellType.hpp"
@@ -57,6 +57,7 @@ class XlsCell
         catch (...)
         {
         }
+
         type_ = CellType::STRING;
         value_ = trimWs ? trim (s) : s;
     };
@@ -234,16 +235,27 @@ class XlsCell
     [[nodiscard]] std::string
     asBoolString () const
     {
-        if (const auto *b = std::get_if<bool> (&value_))
-        {
-            return *b ? "TRUE" : "FALSE";
-        }
 
-        if (std::abs (cell_->d) > std::numeric_limits<double>::epsilon ())
-        {
-            return "True";
-        }
-        return "False";
+        return std::visit (
+            [] (const auto &arg) -> std::string
+            {
+                using T = std::decay_t<decltype (arg)>;
+                if constexpr (std::is_same_v<T, bool>)
+                {
+                    return arg ? "True" : "False";
+                }
+                else if constexpr (std::is_same_v<T, double>)
+                {
+                    return arg != 0 ? "True" : "False";
+                }
+                else if constexpr (std::is_same_v<T, std::string>)
+                {
+                    return !arg.empty () ? "True" : "False";
+                }
+
+                return "";
+            },
+            value_);
     }
 
     [[nodiscard]] std::string

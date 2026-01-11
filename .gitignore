@@ -29,6 +29,7 @@ AGENTS.md
 *~
 .qoder/
 .claude/
+.continue/
 openspec/
 CLAUDE.md
 .cursor/

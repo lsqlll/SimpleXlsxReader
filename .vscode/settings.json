@@ -124,4 +124,7 @@
             ],
         }
     },
+    "chat.agent.enabled": false,
+    "editor.inlineCompletionsAccessibilityVerbose": false,
+    "editor.inlineSuggest.enabled": false,
 }
