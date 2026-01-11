@@ -10,11 +10,54 @@ set(GTEST_DIR ${THIRD_PARTY_DIR}/googletest)
 set(LIBXLS_INCLUDE_DIR ${THIRD_PARTY_DIR}/libxls/include)
 set(LIBXLS_LIBRARY_DIR ${THIRD_PARTY_DIR}/libxls/lib/mingw64/lib)
 set(LIBICONV_LIBRARY_DIR ${THIRD_PARTY_DIR}/libiconv/source/build/lib)
+set(GTEST_LIBRARY_DIR ${CMAKE_BINARY_DIR}/lib)
 
-add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
-set_target_properties(gtest gmock gtest_main PROPERTIES
-    EXCLUDE_FROM_ALL TRUE
-    EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+# 检查是否存在预编译的gtest库
+find_library(GTEST_LIBRARY
+    NAMES gtest
+    PATHS ${GTEST_LIBRARY_DIR}
+    NO_DEFAULT_PATH
+)
+
+find_library(GMOCK_LIBRARY
+    NAMES gmock
+    PATHS ${GTEST_LIBRARY_DIR}
+    NO_DEFAULT_PATH
+)
+
+find_library(GTEST_MAIN_LIBRARY
+    NAMES gtest_main
+    PATHS ${GTEST_LIBRARY_DIR}
+    NO_DEFAULT_PATH
+)
+
+if(GTEST_LIBRARY AND GMOCK_LIBRARY AND GTEST_MAIN_LIBRARY)
+  # 使用预编译的gtest
+  message(STATUS "Found pre-built Google Test: ${GTEST_LIBRARY}")
+  add_library(gtest STATIC IMPORTED GLOBAL)
+  set_target_properties(gtest PROPERTIES
+      IMPORTED_LOCATION ${GTEST_LIBRARY}
+      INTERFACE_INCLUDE_DIRECTORIES ${GTEST_DIR}/googletest/include
+  )
+  add_library(gmock STATIC IMPORTED GLOBAL)
+  set_target_properties(gmock PROPERTIES
+      IMPORTED_LOCATION ${GMOCK_LIBRARY}
+      INTERFACE_INCLUDE_DIRECTORIES ${GTEST_DIR}/googlemock/include
+  )
+  add_library(gtest_main STATIC IMPORTED GLOBAL)
+  set_target_properties(gtest_main PROPERTIES
+      IMPORTED_LOCATION ${GTEST_MAIN_LIBRARY}
+      INTERFACE_INCLUDE_DIRECTORIES ${GTEST_DIR}/googletest/include
+  )
+else()
+  # 编译gtest
+  message(STATUS "Pre-built Google Test not found, building from source")
+  add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
+  set_target_properties(gtest gmock gtest_main PROPERTIES
+      EXCLUDE_FROM_ALL TRUE
+      EXCLUDE_FROM_DEFAULT_BUILD TRUE
+  )
+endif()
 
 # 查找 libiconv - 先修正这部分
 message(STATUS "Looking for libiconv...")
@@ -97,9 +140,3 @@ set_target_properties(CellFuncTest PROPERTIES
 #set_target_properties(testStringViewUtils PROPERTIES
 #    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 #)
-
-add_custom_target(build_gtest
-    COMMENT "Building Google Test libraries"
-    DEPENDS gtest gmock gtest_main
-)
-add_dependencies(CellFuncTest build_gtest)
