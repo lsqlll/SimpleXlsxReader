@@ -1,5 +1,5 @@
 #pragma once
 
-#include "Exceptions.h"
-#include "ResourceManager.h"
-#include "strategy.h"
+#include "Exceptions.hpp"
+#include "ResourceManager.hpp"
+#include "strategy.hpp"

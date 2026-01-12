@@ -310,7 +310,7 @@ TEST_F (XlsCellTest, ValueMethodString)
 
     XlsCell xlsCell (cell);
 
-    const auto &value = xlsCell.value ();
+    const auto value = xlsCell.getValue () ();
     CellType type = xlsCell.getType ();
 
     EXPECT_TRUE (std::holds_alternative<std::string> (value)
@@ -324,11 +324,11 @@ TEST_F (XlsCellTest, ValueMethodNumber)
 
     XlsCell xlsCell (cell);
 
-    const auto &value = xlsCell.value ();
+    const auto value = xlsCell.getValue () ();
 
     CellType type = xlsCell.getType ();
 
-    EXPECT_TRUE (std::holds_alternative<std::string> (value)
+    EXPECT_TRUE (std::holds_alternative<double> (value)
                  || type == CellType::NUMBER || type == CellType::BLANK);
 }
 
@@ -593,8 +593,8 @@ TEST (CellPositionTest, ComplexAddress)
 TEST (CellPositionTest, NulloptConstructor)
 {
     CellPosition pos (std::nullopt);
-    EXPECT_FALSE (pos.row.has_value ());
-    EXPECT_FALSE (pos.col.has_value ());
+    EXPECT_FALSE (pos.hasRow ());
+    EXPECT_FALSE (pos.hasCol ());
 }
 
 // ============================================================================

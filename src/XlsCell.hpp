@@ -1,16 +1,15 @@
 #pragma once
 
 #include <cmath>
-#include <iomanip>
+#include <cstddef>
+#include <functional>
 #include <limits>
 #include <optional>
 #include <sstream>
 #include <string>
-#include <type_traits>
 #include <variant>
 
 #include "CellType.hpp"
-#include "Exceptions.hpp"
 #include "utils.hpp"
 
 class XlsCell
@@ -20,6 +19,33 @@ class XlsCell
     CellPosition location_;
     std::optional<CellType> type_;
     std::variant<std::monostate, std::string, double, bool> value_;
+
+    [[nodiscard]]
+    double
+    getNumber () const
+    {
+        return std::get<double> (value_);
+    }
+
+    [[nodiscard]]
+    std::string
+    getString () const
+    {
+        return std::get<std::string> (value_);
+    }
+
+    [[nodiscard]] bool
+    getBool () const
+    {
+        return std::get<bool> (value_);
+    }
+
+    [[nodiscard]]
+    static std::variant<double, bool, std::string>
+    getMonosate ()
+    {
+        return std::string{ "" };
+    }
 
     void
     inferValueFromStringCell (bool trimWs)
@@ -366,31 +392,16 @@ class XlsCell
         initialize (cell);
     }
 
-    [[nodiscard]] int
+    [[nodiscard]] std::size_t
     row () const
     {
-        if (location_.row.has_value ())
-        {
-            return location_.row.value ();
-        }
-        return -1;
+        return this->location_.getRow ();
     }
 
-    [[nodiscard]] int
+    [[nodiscard]] std::size_t
     col () const
     {
-        if (location_.col.has_value ())
-        {
-
-            return location_.col.value ();
-        }
-        return -1;
-    }
-
-    [[nodiscard]] CellPosition
-    getPosition () const
-    {
-        return location_;
+        return this->location_.getCol ();
     }
 
     [[nodiscard]] std::string
@@ -532,8 +543,35 @@ class XlsCell
     }
 
     [[nodiscard]] auto
-    value () const
+    getValue () const
     {
-        return value_;
+        return std::visit (
+            [this] (const auto &val)
+                -> std::function<std::variant<double, bool, std::string> ()>
+            {
+                using T = std::decay_t<decltype (val)>;
+                if constexpr (std::is_same_v<T, double>)
+                {
+                    return [this] () -> std::variant<double, bool, std::string>
+                    { return getNumber (); };
+                }
+                else if constexpr (std::is_same_v<T, bool>)
+                {
+                    return [this] () -> std::variant<double, bool, std::string>
+                    { return getBool (); };
+                }
+                else if constexpr (std::is_same_v<T, std::string>)
+                {
+                    return [this] () -> std::variant<double, bool, std::string>
+                    { return getString (); };
+                }
+                else
+                {
+                    // monostate
+                    return [] () -> std::variant<double, bool, std::string>
+                    { return getMonosate (); };
+                }
+            },
+            value_);
     }
 };
