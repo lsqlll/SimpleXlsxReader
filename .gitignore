@@ -23,14 +23,40 @@ build.ninja
 *.xls
 *.xlsx
 *.csv
-*.json
 
+# Node.js
+node_modules/
+.pnpm-store/
+package-lock.json
+
+# Husky (only track hooks, not internal files)
+.husky/_/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# AI Assistants
 AGENTS.md
 .env
-*~
 .qoder/
 .claude/
 .continue/
 openspec/
 CLAUDE.md
 .cursor/
+.opencode/
+
+# Build artifacts
+compile_commands.json
+build/compile_commands.json
+
+# Logs
+*.log
+cppcheck_output.txt
+
+# Install scripts
+install.sh
