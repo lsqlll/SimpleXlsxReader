@@ -44,6 +44,7 @@ AGENTS.md
 .env
 .qoder/
 .claude/
+.opencode/
 .continue/
 openspec/
 CLAUDE.md
